@@ -63,7 +63,7 @@ export default {
   },
   watch:{
           pageCount:function(val){
-              console.log(this.pageCount)
+              // console.log(this.pageCount)
               
           }
         },

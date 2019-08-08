@@ -203,8 +203,9 @@
       <div class="crumbs" v-if="isPc">
         <div class="crumbs-content">
           <div class="crumbs-title">
-            <span style="color: #777;font-size: 20px;margin-top: 8px;">{{pageName}}</span>
-            <span style="color:#999">{{pageNumber}}</span>
+            <span style="color: #777;font-size: 20px;margin-top: 8px;font-weight:bold">{{pageName}}</span>
+            <span style="color:#999;font-size: 20px;" v-if="this.$route.query.hide">{{pageNumber}}</span>
+            <span style="color:#999" v-if="!this.$route.query.hide">{{pageNumber}}</span>
           </div>
           <el-breadcrumb separator="/" style="height:50px;line-height:50px;">
             <el-breadcrumb-item v-for="item in crumbsList" :key="item.path" v-if="item.meta.title">
@@ -405,7 +406,7 @@ export default {
           this.pageNumber = `#${to.params.blockid}`;
           break;
         case "address":
-           this.lang == 'en'? this.pageName = "地址  " :this.pageName = "Address  ";
+          this.lang == 'en'? this.pageName = "地址  " :this.pageName = "Address  ";
           this.pageNumber = `#${to.params.blockid}`;
           break;
         case "index":
@@ -448,8 +449,14 @@ export default {
           this.pageNumber = `#${to.params.blockid}`;
           break;
         case "address":
-           this.lang == 'en'? this.pageName = "地址  " :this.pageName = "Address  ";
-          this.pageNumber = `#${to.params.blockid}`;
+          if(this.$route.query.hide){
+            this.lang == 'en'? this.pageName = "代幣  " :this.pageName = "Token  ";
+            this.pageNumber = `${to.query.statusName}`;
+          }else{
+             this.lang == 'en'? this.pageName = "地址  " :this.pageName = "Address  ";
+             this.pageNumber = `#${to.params.blockid}`;
+          }
+          
           break;
         case "index":
           this.pageName = "";

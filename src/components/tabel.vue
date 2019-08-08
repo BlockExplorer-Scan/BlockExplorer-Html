@@ -93,7 +93,12 @@
         >{{ scope.row.to }}</div>
       </template>
     </el-table-column>
-    <el-table-column :label="tableTitle.Value" min-width="80">
+    <el-table-column :label="tableTitle.Value" min-width="80" v-if="!hideValue">
+      <template slot-scope="scope">
+        <span style="margin-left: 10px">{{ scope.row.value/Math.pow(10, 18) || 0}}</span>
+      </template>
+    </el-table-column>
+      <el-table-column :label="tableTitle.Quantity" min-width="80" v-if="hideValue">
       <template slot-scope="scope">
         <span style="margin-left: 10px">{{ scope.row.value/Math.pow(10, 18) || 0}}</span>
       </template>
@@ -128,6 +133,10 @@ export default {
     tableType: {
       type: String,
       default: ""
+    },
+    hideValue:{
+      type: Boolean,
+      default :false
     }
   },
   data() {
@@ -141,13 +150,15 @@ export default {
         To: "To",
         Value: "value",
         Token: "Token",
-        TxFee:"TxFee"
+        TxFee:"TxFee",
+        Quantity:"Quantity"
       }
     };
   },
   created() {
     if (this.$i18n.locale == "cn") {
       this.tableTitle = {
+        Quantity:"数量",
         TxHash: "交易哈希",
         Block: "區塊",
         ParentTxHash: "父哈希",
@@ -160,6 +171,7 @@ export default {
       };
     } else {
       this.tableTitle = {
+        Quantity:"Quantity",
         TxHash: "TxHash",
         ParentTxHash: "ParentTxHash",
         Block: "Block",

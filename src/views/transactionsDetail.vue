@@ -9,20 +9,20 @@
         </div>
         <div class="detail-content">
           <ul>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.TxHash')}}:</p>
               <p class="text-right">{{detailItem.hash}}</p>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.TxReceiptStatus')}}:</p>
               <p class="text-right" style="color:rgb(0, 128, 0)">{{$t('message.Success')}}</p>
               <!-- <p class="text-right">{{detailItem.txReceipt || Success}}</p> -->
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.BlockHeight')}}:</p>
-              <p class="text-right">{{detailItem.blockNumber}}</p>
+              <p class="text-right jump"  @click="toDetail(detailItem.blockNumber, 'number')">{{detailItem.blockNumber}}</p>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.TimeStamp')}}:</p>
               <p class="text-right">
                 <span v-if="detailItem.timestamp[0] > 0">
@@ -35,50 +35,62 @@
                 <span>({{detailItem.timestampUTC}})</span>
               </p>
             </li>
-            <li>
-              <p class="text-left">{{$t('message.From')}}:</p>
+            <li class="li-border">
+              <p class="text-left" style="align-self:flex-start;">{{$t('message.From')}}:</p>
               <p class="text-right jump" @click="jumpTo(detailItem.from,'from')">{{detailItem.from}}</p>
             </li>
-            <li>
-              <p class="text-left">{{$t('message.To')}}:</p>
-              <p class="text-right">
-                <span v-if="detailItem.status == 'IN'">{{$t('message.Contract')}}</span>
-                <span class="jump" @click="jumpTo(detailItem.to,'to')">  {{detailItem.to}}</span>
-              </p>
+            <li class="li-border">
+              <p class="text-left" style="align-self:flex-start;margin:0">{{$t('message.To')}}:</p>
+              <div class="text-right" style="align-self:flex-start;">
+                <div>
+                  <span v-if="detailItem.status == 'IN'">{{$t('message.Contract')}}</span>
+                  <span class="jump" @click="jumpTo(detailItem.to,'to')">  {{detailItem.to}}</span>
+                </div>
+                <div style="font-size:12px;display:flex;align-items:center;flex-wrap:wrap;margin-top:10px" 
+                v-for="item in internalTran" :key="item.transactionHash">
+                  <img src="../assets/right.jpg" style="width:12px;height:12px">
+                  <span class="inline-block" style="color: #77838f!important;font-size:12px">&nbsp;&nbsp; TRANSFER &nbsp;</span>
+                  <span class="inline-block" style="font-size:12px">{{item.value/Math.pow(10, 18)}} AVA </span>
+                  <span class="inline-block " style="color: #77838f!important;">&nbsp;{{$t('message.From')}} &nbsp;</span>
+                  <span class="jump tran-form">{{item.from}}</span>
+                  <span class="inline-block" style="color: #77838f!important;">&nbsp;{{$t('message.To')}}&nbsp;</span>
+                  <span class="jump tran-form">{{item.to}}</span>
+                </div>
+              </div>
             </li>
-            <li>
-              <p class="text-left" v-if="tranbool">{{$t('message.TokensTransfered')}}:</p>
+            <li class="li-border" v-if="transferedArr.length != 0">
+              <p class="text-left" style="align-self:flex-start;" v-if="tranbool">{{$t('message.TokensTransfered')}}:</p>
               <div
                 class="text-right auto-phone"
-                style="overflow-y:auto;max-height:200px;box-shadow:0px -10px 30px 20px #fff inset"
+                style="overflow-y:auto;max-height:200px;box-shadow:0px -10px 30px 20px #fff inset;"
               >
-                <div v-for="(item,index) in transferedArr" :key="index" style="margin-bottom:5px;">
+                <div v-for="(item,index) in transferedArr" :key="index" style="margin-bottom:5px;display:flex;align-items:center;flex-wrap:wrap">
                   <i class="fa fa-caret-right"></i>
-                  <span class="inline-block tran-form">{{$t('message.From')}}</span>
-                  <span class="jump tran-form">{{item.from}}</span>
-                  <span class="inline-block tran-form">{{$t('message.To')}}</span>
-                  <span class="jump tran-form">&nbsp;{{item.to}}</span>
+                  <span class="inline-block">&nbsp;{{$t('message.From')}}</span>
+                  <span class="jump tran-form" @click="jumpToAdderss(item.from,'from',true,item.tokenAddress,item.statusName)">&nbsp;{{item.from}}&nbsp;</span>
+                  <span class="inline-block">&nbsp;{{$t('message.To')}}</span>
+                  <span class="jump tran-form" @click="jumpToAdderss(item.to,'to',true,item.tokenAddress,item.statusName)">&nbsp;{{item.to}}&nbsp;&nbsp;</span>
                   
                   <span class="tran-form">for&nbsp;{{item.data}}</span>
                   <span class="jump tran-form  tran-width auto-max">&nbsp;ERC-20&nbsp;({{item.statusName}})</span>
                 </div>
               </div>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.Value')}}:</p>
               <p class="text-right">{{detailItem.value/Math.pow(10, 18)}}  {{detailItem.maincoinName}}</p>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.GasLimit')}}:</p>
               <!-- <p class="text-right">{{detailItem.gasLimit || 0}}</p> -->
               <p class="text-right">{{detailItem.gas}}</p>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.GasUsedByTransaction')}}:</p>
               <!-- <p class="text-right">{{detailItem.gasUsed || 0}}({{((parseFloat(detailItem.gasUsed)/parseFloat(detailItem.gas))*100).toFixed(2)}}%)</p> -->
               <p class="text-right">{{detailItem.gasUsed || 0}}{{detailItem.gasUsed/detailItem.gas | cost}}</p>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.GasPrice')}}:</p>
               <!-- <p class="text-right">0.00000002 Ether (2 Gwei)</p> -->
               <p
@@ -87,17 +99,17 @@
               {{detailItem.gasPrice | science}} 
                {{detailItem.maincoinName}}({{detailItem.gasPrice/ Math.pow(10, 9)}} Gwei)</p>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.ActualTxCost/Fee')}}:</p>
               <!-- <p class="text-right">{{detailItem.Actual || 0}} Ether</p> -->
               <p class="text-right">{{(detailItem.gasUsed*( detailItem.gasPrice/ Math.pow(10, 18))).toFixed(8)}}  {{detailItem.maincoinName}}</p>
               <!-- <p class="text-right">{{detailItem.gasUsed | multiple}}  {{detailItem.maincoinName}}</p> -->
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.Nonce&{Position}')}}:</p>
               <p class="text-right">{{detailItem.nonce || 0}}</p>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.InputData')}}:</p>
               <p class="text-right">
                 <textarea
@@ -107,7 +119,7 @@
                 ></textarea>
               </p>
             </li>
-            <li>
+            <li  class="li-border">
               <p class="text-left">{{$t('message.PrivateNote')}}:</p>
               <p class="text-right">{{detailItem.Nonce || 0}}</p>
             </li>
@@ -121,20 +133,20 @@
           <div>
             <ul v-for="(item,index) in logArr" :key="index">
               <li class="flex-star">
-                <p class="log-id">[{{index}}]</p>
-                <p class="log-address">{{$t('message.address')}}</p>
-                <p class="jump">{{item.address}}</p>
+                <p class="log-id margin-p">[{{index}}]</p>
+                <p class="log-address margin-p">{{$t('message.address')}}</p>
+                <p class="jump margin-p">{{item.address}}</p>
               </li>
               <li class="flex-star" v-for="(top,index1) in item.topics" :key="index1">
-                <p class="log-id"></p>
-                <p class="log-address" v-if="index1 == 0">{{$t('message.Topics')}}</p>
-                <p class="log-address" v-else></p>
-                <p class="name-wrapper">[{{index1}}]&nbsp;&nbsp;{{top}}</p>
+                <p class="log-id margin-p"></p>
+                <p class="log-address margin-p" v-if="index1 == 0">{{$t('message.Topics')}}</p>
+                <p class="log-address margin-p" v-else></p>
+                <p class="name-wrapper margin-p">[{{index1}}]&nbsp;&nbsp;{{top}}</p>
               </li>
               <!-- <li class="flex-star" v-for="(tran,index2) in transferedArr" :key="index2"> -->
               <li class="flex-star">
-                <p class="log-id"></p>
-                <p class="log-address">{{$t('message.Data')}}</p>
+                <p class="log-id margin-p"></p>
+                <p class="log-address margin-p">{{$t('message.Data')}}</p>
                 <!-- <p class="log-address" v-if="index2 == 0">Data</p> -->
                 <!-- <p class="log-address" v-else></p> -->
                 <p class="log-data">
@@ -185,7 +197,8 @@ export default {
       tranbool: false,
       type: "Hex",
       time1: 0,
-      noData: false
+      noData: false,
+      internalTran: []
     };
   },
   filters: {
@@ -204,8 +217,47 @@ export default {
     let blockid = this.$route.params.blockid;
     this.queryTransactionByValue(blockid);
     this.queryERC20ByTransaction(blockid);
+    this.getInternalTran(blockid)
+     var EventUtil = {
+        addHandler: function (element, type, handler) {
+            if (element.addEventListener) {
+                element.addEventListener(type, handler, false);
+            } else if (element.attachEvent) {
+                element.attachEvent("on" + type, handler);
+            } else {
+                element["on" + type] = handler;
+            }
+        }
+    };
+    EventUtil.addHandler(window, "online",  () =>{
+        console.log("连上网了！");
+        this.queryTransactionByValue(blockid);
+        this.queryERC20ByTransaction(blockid);
+    });
+    EventUtil.addHandler(window, "offline", () =>{ 
+         console.log("网络不给力，请检查网络设置!");
+    });
   },
   methods: {
+     jumpToTokenDetail(val) {
+      this.$router.push({
+        name: "tokenDetail",
+        params: {
+          blockid: val
+        }
+      });
+    },
+    toDetail(value, target) {
+      let name = '';
+      let blockid = value;
+      if(target === 'number'){name = 'blockDetail'};
+      if(target === 'miner'){name = 'address'};
+      if(target === 'txns'){name = 'transactionsPage'};
+      this.$router.push({
+        name: name,
+        params: { blockid: blockid, type: target }
+      });
+    },
     // queryTransactionByValue
     async queryTransactionByValue(blockid) {
       await this.getTime();
@@ -221,6 +273,18 @@ export default {
             this.detailItem.timestampUTC = this.$timestampToTimeUtc(newTime);
             this.detailItem.timestamp = this.$time(this.time1 - newTime);
           }
+        }
+      });
+    },
+    //获取内部交易
+    getInternalTran(blockid){
+      this.$fetch("/queryTransactionByContract", {
+        hash: blockid,
+      }).then(response => {
+        console.log('999999999999'+response)
+        if (response.status == 200) {
+          // response.data[0] ? this.internalTran = response.data[0] : ''
+         this.internalTran = response.data
         }
       });
     },
@@ -247,7 +311,8 @@ export default {
                 to: item.to,
                 data: this.scienceNum(item.data) / Math.pow(10, 18),
                 data2: item.data,
-                statusName: item.statusName
+                statusName: item.statusName,
+                tokenAddress : item.address
               });
               this.tranbool = true;
             }
@@ -261,6 +326,13 @@ export default {
         name: "address",
         params: { blockid: index },
         query: { type: type }
+      });
+    },
+    jumpToAdderss(index, type, hide,tokenAddress,statusName) {
+      this.$router.push({
+        name: "address",
+        params: { blockid: index },
+        query: { type: type , hide: hide ,tokenAddress:tokenAddress,statusName:statusName }
       });
     },
     handleCommand(command) {
@@ -309,6 +381,13 @@ export default {
 // .inline-block{
 //   display: inline-block;
 // }
+.margin-p{
+  margin: 10px
+}
+.li-border{
+  border-bottom: 1px solid #e7eaf3;
+  padding: 10px 0
+}
 .name-wrapper {
   cursor: pointer;
   color: #3498db;
@@ -368,7 +447,7 @@ li {
   align-items: center;
 }
 p {
-  margin: 10px 0;
+  margin:  0;
 }
 .flex-star {
   display: flex;
@@ -420,7 +499,10 @@ p {
 @media screen and (max-width: 768px) {
   li {
     display: block;
-    margin-bottom: 5px;
+    // margin-bottom: 5px;
+    // margin-top: 10px;
+  }
+  .text-right {
     margin-top: 10px;
   }
   p {

@@ -32,7 +32,7 @@
             <span style="color:#B3B6B7;margin-right:5px">Rep</span>
             <!-- <i class="fa fa-circle-thin"></i> -->
           </p>
-          <div>
+          <div style="display:none">
             <el-dropdown trigger="click" style="background-color: #337ab7;">
               <el-button
                 size="mini"
@@ -46,7 +46,7 @@
                 <div style="text-align:left">
                   <p style="color:#999;text-align:right">Sponsored</p>
                   <p class="text-hide" style="cursor:pointer;color:#3498db">
-                    <img src="https://etherscan.io/images/gen/nexo_20.png" alt> Nexo Nexo - Instant
+                    <img src="https://etherscan.io/images/gen/nexo_20.png" alt /> Nexo Nexo - Instant
                     Crypto Loans
                   </p>
                   <p style="color:#777">Get instant cash in 40+ fiat currencies</p>
@@ -93,15 +93,30 @@
     <el-tabs v-model="activeName" type="card">
       <el-tab-pane :label="tabTitle.Transfers" name="first">
         <Transfers :tokens="tokens"></Transfers>
-        <Pager @refreshList="getTokens" :pageCount='pageCount'></Pager>
+        <Pager @refreshList="getTokens" :pageCount="pageCount"></Pager>
       </el-tab-pane>
       <el-tab-pane :label="tabTitle.Holders" name="second" v-if="hasToken">
+        <div class="hold-flex">
+          <p
+            style="margin-bottom:10px"
+          >{{$t('message.Top')}} 1,000 {{$t('message.holders')}} ({{$t('message.FromATotalOf')}} {{HoldersNum}} {{$t('message.holders')}})</p>
+          <pagingTwo
+            style="margin-bottom:10px"
+            @refreshList="getHolders"
+            :pageCount="HoldersPageCount"
+            :currentPage="HoldersPageNum"
+          ></pagingTwo>
+        </div>
         <Holders :holders="holders" :startfrom="startfrom"></Holders>
-        <pagingTwo @refreshList="getHolders" :pageCount='HoldersPageCount'></pagingTwo>
+        <pagingTwo
+          @refreshList="getHolders"
+          :pageCount="HoldersPageCount"
+          :currentPage="HoldersPageNum"
+        ></pagingTwo>
       </el-tab-pane>
       <!-- <el-tab-pane :label="tabTitle.Info" name="third">
         <Info></Info>
-      </el-tab-pane> -->
+      </el-tab-pane>-->
     </el-tabs>
   </div>
 </template>
@@ -113,16 +128,16 @@ import Info from "../components/token/info";
 import Pager from "../components/paging";
 import pagingTwo from "../components/pagingTwo";
 import bigDecimal from "js-big-decimal"; // 精度计算
-import md5 from 'js-md5';
+import md5 from "js-md5";
 export default {
-  components: { Transfers, Pager, Holders, pagingTwo},
+  components: { Transfers, Pager, Holders, pagingTwo },
   data() {
     return {
-      hasToken :sessionStorage.getItem('token'),
-       tabTitle:{
-        Transfers:'Transfers',
-        Holders:'Holders',
-        Info:'Info',
+      hasToken: sessionStorage.getItem("token"),
+      tabTitle: {
+        Transfers: "Transfers",
+        Holders: "Holders",
+        Info: "Info"
       },
       activeName: "first",
       isReduce: true,
@@ -135,11 +150,12 @@ export default {
       // address: '0xc1fe51a933d9bb15eeabadffd81918241121988c',
       address: this.$route.params.blockid,
       startfrom: 0,
-      pageCount:0,
-      Holders:'',
-      HoldersNum:'',
-      HoldersPageCount:'',
-      token : sessionStorage.getItem('token'),
+      pageCount: 0,
+      Holders: "",
+      HoldersNum: "",
+      HoldersPageCount: 0,
+      HoldersPageNum: 1,
+      token: sessionStorage.getItem("token"),
       timestamp: Date.parse(new Date())
     };
   },
@@ -147,77 +163,94 @@ export default {
     // this.getTokens();
     this.getHolders();
     this.$route.meta.title = this.$route.params.blockid;
-    if(this.$i18n.locale == 'cn'){
-      // alert(1212)
-       this.tabTitle={
-        Transfers:'转移',
-        Holders:'持有者',
-        Info:'知訊',
-      }
-    }else{
-       this.tabTitle={
-        Transfers:'Transfers',
-        Holders:'Holders',
-        Info:'Info',
-      }
+    if (this.$i18n.locale == "cn") {
+      this.tabTitle = {
+        Transfers: "转移",
+        Holders: "持有者",
+        Info: "知訊"
+      };
+    } else {
+      this.tabTitle = {
+        Transfers: "Transfers",
+        Holders: "Holders",
+        Info: "Info"
+      };
     }
   },
-  mounted(){
+  mounted() {
     Bus.$on("language", data => {
       if (data == "cn") {
-        this.tabTitle={
-        Transfers:'转移',
-        Holders:'持有者',
-        Info:'知訊',
-      }
+        this.tabTitle = {
+          Transfers: "转移",
+          Holders: "持有者",
+          Info: "知訊"
+        };
       } else {
-        this.tabTitle={
-         Transfers:'Transfers',
-        Holders:'Holders',
-        Info:'Info',
+        this.tabTitle = {
+          Transfers: "Transfers",
+          Holders: "Holders",
+          Info: "Info"
+        };
       }
-    }});
+    });
     Bus.$on("loginOut", data => {
       // alert(12121)
-     this.hasToken = ''
+      this.hasToken = "";
+    });
+    var EventUtil = {
+      addHandler: function(element, type, handler) {
+        if (element.addEventListener) {
+          element.addEventListener(type, handler, false);
+        } else if (element.attachEvent) {
+          element.attachEvent("on" + type, handler);
+        } else {
+          element["on" + type] = handler;
+        }
+      }
+    };
+    EventUtil.addHandler(window, "online", () => {
+      console.log("连上网了！");
+      this.getHolders();
+    });
+    EventUtil.addHandler(window, "offline", () => {
+      console.log("网络不给力，请检查网络设置!");
     });
   },
   methods: {
-    
     async getTokens(val) {
-       let params2 = {
-        contractAddress: this.address,
+      let params2 = {
+        contractAddress: this.address
       };
-       this.$fetch("/ERC20Tokens/queryERC20HoldersCounts", params2).then(res => {
-        this.HoldersNum = res.data
+      this.$fetch("/ERC20Tokens/queryERC20HoldersCounts", params2).then(res => {
+        this.HoldersNum = res.data;
         // this.Holders.forEach( ( item, i ) => {
-        //     item.rank = i+1 
+        //     item.rank = i+1
         // } );
       });
       await this.getTime();
-      await this.getTokenCounts()
-      
-      console.log('------------------'+val)
+      await this.getTokenCounts();
       let pageNum = this.pageNum;
       let pageStart;
       if (val === undefined || val.toString() === "1") {
         pageStart = 0;
       } else {
-        pageStart = (val - 1) * pageNum ;
+        pageStart = (val - 1) * pageNum;
       }
       let params = {
         contractAddress: this.address,
         pageStart: pageStart,
         pageNum: pageNum
       };
-      this.pageCount = Math.ceil(this.tokensCounts.Transfers /pageNum)
+      this.pageCount = Math.ceil(this.tokensCounts.Transfers / pageNum);
       this.$fetch("/ERC20Tokens/queryERC20TokenTransfers", params).then(res => {
         this.tokens = res.data;
         this.tokens.forEach(item => {
           if (item.timestamp) {
             item.timestamp = this.$time(this.time1 - item.timestamp);
           }
-          item.data = parseInt(item.data, 16);
+          // item.data = parseInt(item.data, 16);
+          item.data =
+            parseInt(item.data, 16) / Math.pow(10, this.tokensCounts.decimals);
         });
         this.address = this.tokens[0].address;
       });
@@ -226,7 +259,10 @@ export default {
       let params = {
         contractAddress: this.address
       };
-      let { data } = await this.$fetch("/ERC20Tokens/queryERC20TokenCounts", params);
+      let { data } = await this.$fetch(
+        "/ERC20Tokens/queryERC20TokenCounts",
+        params
+      );
 
       this.tokensCounts = data;
       this.tokensCounts.TokenTotalSupply = new Number(
@@ -251,36 +287,59 @@ export default {
     },
     async getHolders(val) {
       // await this.getTokenCounts()
-      await this.getTokens()
-      if(!this.hasToken){
-        return
+      this.HoldersPageNum = val ? val : this.HoldersPageNum;
+      // console.log(this.HoldersPageNum)
+      await this.getTokens();
+      if (!this.hasToken) {
+        return;
       }
-      let pageNum = 30;
+      let pageNum = 50;
       let pageStart;
       if (val === undefined || val.toString() === "1") {
         pageStart = 0;
       } else {
         pageStart = (val - 1) * pageNum;
       }
-      let nihao = "contractAddress=" + this.address + "&timestamp=" + this.timestamp + "&token=" + this.token
-      let signStr = md5("contractAddress=" + this.address + "&timestamp=" + this.timestamp + "&token=" + this.token);
+      let nihao =
+        "contractAddress=" +
+        this.address +
+        "&timestamp=" +
+        this.timestamp +
+        "&token=" +
+        this.token;
+      let signStr = md5(
+        "contractAddress=" +
+          this.address +
+          "&timestamp=" +
+          this.timestamp +
+          "&token=" +
+          this.token
+      );
       let params = {
         contractAddress: this.address,
         pageStart: pageStart,
         pageNum: pageNum,
-        timestamp:this.timestamp,
-        token:this.token,
-        sign:signStr
+        timestamp: this.timestamp,
+        token: this.token,
+        sign: signStr
       };
-      this.HoldersPageCount = Math.ceil(this.HoldersNum /pageNum)
+      this.HoldersPageCount =
+        Math.ceil(this.HoldersNum / pageNum) <= 20
+          ? Math.ceil(this.HoldersNum / pageNum)
+          : 20;
       // console.log('父组件数'+this.HoldersNum)
       // console.log('每页'+pageNum)
       // console.log('父组件的总页数'+this.HoldersPageCount)
-      this.$post("/ERC20Tokens/queryERC20Holders", this.$qs.stringify(params)).then(res => {
+      this.$post(
+        "/ERC20Tokens/queryERC20Holders",
+        this.$qs.stringify(params)
+      ).then(res => {
         this.holders = res.data;
-        this.holders.forEach((item,i) => {
-          item.rank = val ? i+1+30*(val-1) : i+1 ;
-          if(item.Percentage === 0){item.Percentage = 0.000001}
+        this.holders.forEach((item, i) => {
+          item.rank = val ? i + 1 + 50 * (val - 1) : i + 1;
+          if (item.Percentage === 0) {
+            item.Percentage = 0.000001;
+          }
           item.Percentage = bigDecimal.multiply(item.Percentage, 100);
           item.Quantity = new Number(item.Quantity)
             .toLocaleString()
@@ -301,6 +360,12 @@ export default {
 </script>
 
 <style scoped lang='scss'>
+.hold-flex {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  flex-wrap: wrap;
+}
 .colorG {
   color: green;
 }

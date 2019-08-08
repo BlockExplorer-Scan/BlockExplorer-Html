@@ -165,6 +165,28 @@ export default {
     } else {
       this.querytransaction(this.pageStart, this.pageNum);
     }
+    var EventUtil = {
+        addHandler: function (element, type, handler) {
+            if (element.addEventListener) {
+                element.addEventListener(type, handler, false);
+            } else if (element.attachEvent) {
+                element.attachEvent("on" + type, handler);
+            } else {
+                element["on" + type] = handler;
+            }
+        }
+    };
+    EventUtil.addHandler(window, "online",  () =>{
+      console.log("连上网了！");
+      if (blockid != null) {
+        this.queryTransactionByValue(blockid);
+      } else {
+        this.querytransaction(this.pageStart, this.pageNum);
+      }
+    });
+    EventUtil.addHandler(window, "offline", () =>{ 
+         console.log("网络不给力，请检查网络设置!");
+    });
     if(this.$i18n.locale == 'cn'){
       // alert(1212)
        this.tableTitle = {
@@ -219,6 +241,7 @@ export default {
       // 修改展示数目 重置当前页
       this.pageNum = val;
       this.currentPage = 1;
+      this.$router.push({ path:'/transtion/transactionsPage', query: { page: this.currentPage }})
       this.querytransaction(0, val);
     },
     // 分页

@@ -36,7 +36,7 @@ export default {
         series: [],
         credits: {
           enabled: false //不显示LOGO
-        }
+        },
         // tooltip: {
         //   formatter: function() {
         //     return `交易量:${this.series.data} k`;
@@ -68,10 +68,13 @@ export default {
   },
   methods: {
     initChart() {
+      let name = ''
       if (this.$i18n.locale == 'en') {
         this.options.title.text = " AVA Transaction History in 14 days";
+        name = 'Trading value'
       } else {
         this.options.title.text = "AVA14天内的交易歷史";
+        name = '交易量'
       }
       this.chart = new Highcharts.Chart(this.$el, this.options);
       let _this = this;
@@ -94,8 +97,9 @@ export default {
               _this.options.yAxis.tickPositions.push(arr[j]);
             }
           }
+          let nihao = 'laisla '
           _this.chart.addSeries({
-            name: "交易量",
+            name: name,
             data: _this.newdata,
             color: "#0193C9",
             showInLegend: false,

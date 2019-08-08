@@ -10,7 +10,7 @@ import './style/font-awesome.min.css'
 import './style/animate.css'
 import qs from 'qs';
 import { post, fetch, patch, put } from './util/http'
-import { timestampToTime, timeToTimestamp, time ,timestampToTimeUtc } from './util/util'
+import { timestampToTime, timeToTimestamp, time ,timestampToTimeUtc,listenOline } from './util/util'
 import i18n from './i18n/i18n'
 //定义全局变量
 Vue.prototype.$post = post;
@@ -21,13 +21,14 @@ Vue.prototype.$timestampToTime = timestampToTime;
 Vue.prototype.$timestampToTimeUtc = timestampToTimeUtc;
 Vue.prototype.$timeToTimestamp = timeToTimestamp;
 Vue.prototype.$time = time;
+Vue.prototype.$listenOline = listenOline;
 Vue.prototype.$qs = qs;
 Vue.use(ElementUI);
 Vue.use(Vant);
 Vue.config.productionTip = false
 // 全局过滤器
 Vue.filter('thousandFilter', function (val) {
-  return parseFloat(val).toLocaleString(); //千位分隔符
+  return  parseFloat(val).toLocaleString() ; //千位分隔符
 })
 Vue.filter('toFiexd2', function (val) {
   return parseFloat(val).toFixed(2); 

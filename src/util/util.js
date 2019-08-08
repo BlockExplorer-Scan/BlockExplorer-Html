@@ -34,3 +34,26 @@ export function time(timestamp) {
 export function timestampToTimeUtc(timestamp) {
     return new Date(timestamp*1000).toUTCString().replace(/GMT/,'UTC');
 }
+
+export function listenOline(success){
+    console.log(success)
+    let _success = success
+    var EventUtil = {
+        addHandler: function (element, type, handler) {
+            if (element.addEventListener) {
+                element.addEventListener(type, handler, false);
+            } else if (element.attachEvent) {
+                element.attachEvent("on" + type, handler);
+            } else {
+                element["on" + type] = handler;
+            }
+        }
+    };
+    EventUtil.addHandler(window, "online",  () =>{
+         console.log("连上网了！");
+         _success()
+    });
+    EventUtil.addHandler(window, "offline", () =>{ 
+         console.log("网络不给力，请检查网络设置!");
+    });
+}

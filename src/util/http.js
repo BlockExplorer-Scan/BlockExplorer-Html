@@ -2,7 +2,7 @@ import axios from 'axios';
 import { MessageBox } from 'element-ui';
 axios.defaults.timeout = 5000;
 // axios.defaults.baseURL = 'http://192.168.0.112:8080';//本地服务器
-axios.defaults.baseURL = 'http://18.179.50.113/Search-Web';//测试服务器
+axios.defaults.baseURL = 'http://ngxb.haizhutoken.com/Search-Web';//测试服务器
 // axios.defaults.baseURL = 'http://block.bitfpga.com/Search-Web';//正式服务器
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 

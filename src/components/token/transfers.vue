@@ -58,7 +58,9 @@
       </el-table-column>
       <el-table-column :label="tableTitle.Quantity" min-width="180">
         <template slot-scope="scope">
-          <span class="color333 name-wrapper" slot="reference">{{scope.row.data/Math.pow(10, 18)}}</span>
+          <!-- <span class="color333 name-wrapper" slot="reference">{{scope.row.data/Math.pow(10, 18)}}</span> -->
+          <span class="color333 name-wrapper" slot="reference">{{scope.row.data}}</span>
+          <!-- <span class="color333 name-wrapper" slot="reference">{{parseInt(scope.row.data,16)/Math.pow(10, 18)}}</span> -->
         </template>
       </el-table-column>
     </el-table>

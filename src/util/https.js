@@ -14,7 +14,7 @@ import { MessageBox } from 'element-ui';
 // } else if (process.env.NODE_ENV == 'production') {
 //     axios.defaults.baseURL = 'http://api.123dailu.com/';
 // }
-axios.defaults.baseURL = 'http://18.179.50.113/Search-Web';
+axios.defaults.baseURL = 'http://ngxb.haizhutoken.com/Search-Web';
 // 请求超时时间
 axios.defaults.timeout = 5000;
 

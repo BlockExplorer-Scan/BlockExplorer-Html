@@ -9,11 +9,11 @@
         </div>
         <div class="detail-content">
           <ul>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.Height')}}:</p>
               <p class="text-right">{{detailItem.number || 0}}</p>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.TimeStamp')}}:</p>
               <p class="text-right">
                 <span
@@ -25,72 +25,72 @@
                 <span>({{detailItem.timestampUTC}})</span>
               </p>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.Transactions')}}:</p>
               <p
-                class="text-right"
-              >{{detailItem.transactions = [] ? 0 : detailItem.transactions.length}}</p>
+                class="text-right jump" @click="toDetail(detailItem.number,'txns')"
+              >{{detailItem.transactions == [] ? 0 : detailItem.transactions.length}}</p>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.BlockHash')}}:</p>
               <p class="text-right">{{detailItem.hash}}</p>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.ParentHash')}}:</p>
               <p
                 class="text-right jump"
                 @click="jumpTo(detailItem.parentHash,'hash')"
               >{{detailItem.parentHash}}</p>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.Sha3Uncles')}}:</p>
               <p class="text-right">{{detailItem.sha3Uncles}}</p>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.MinedBy')}}:</p>
               <p
                 class="text-right jump"
                 @click="jumpTo(detailItem.miner,'address')"
               >{{detailItem.miner}}</p>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.Difficulty')}}:</p>
               <p class="text-right">{{detailItem.difficulty | thousandFilter}}</p>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.TotalDifficulty')}}:</p>
               <p class="text-right">{{detailItem.totalDifficulty | thousandFilter}}</p>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.Size')}}:</p>
               <p class="text-right">{{detailItem.size}}&nbsp;bytes</p>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.GasUsed')}}:</p>
               <p
                 class="text-right"
               >{{detailItem.gasUsed | thousandFilter}} {{detailItem.gasUsed / detailItem.gasLimit | cost}}</p>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.GasLimit')}}:</p>
               <p class="text-right">{{detailItem.gasLimit | thousandFilter}}</p>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.Nonce')}}:</p>
               <p class="text-right">{{detailItem.nonce}}</p>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.BlockReward')}}:</p>
               <!-- <p class="text-right">'3ETH+'+{{detailItem.size}}</p> -->
               <p
                 class="text-right"
               >{{3+detailItem.gasUsed/Math.pow(10,18)}} {{detailItem.maincoinName}}&nbsp;&nbsp;(3&nbsp; {{detailItem.maincoinName}}+{{detailItem.gasUsed/Math.pow(10,18)}})</p>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.UnclesReward')}}:</p>
               <p class="text-right">{{detailItem.uncles = [] ? 0 : detailItem.uncles.length}}</p>
             </li>
-            <li>
+            <li class="li-border">
               <p class="text-left">{{$t('message.ExtraData')}}:</p>
               <p class="text-right-two">{{detailItem.extraData}}</p>
             </li>
@@ -118,6 +118,24 @@ export default {
   },
   created() {
     this.getInfo();
+     var EventUtil = {
+        addHandler: function (element, type, handler) {
+            if (element.addEventListener) {
+                element.addEventListener(type, handler, false);
+            } else if (element.attachEvent) {
+                element.attachEvent("on" + type, handler);
+            } else {
+                element["on" + type] = handler;
+            }
+        }
+    };
+    EventUtil.addHandler(window, "online",  () =>{
+         console.log("连上网了！");
+         this.getInfo();
+    });
+    EventUtil.addHandler(window, "offline", () =>{ 
+         console.log("网络不给力，请检查网络设置!");
+    });
   },
   methods: {
     async getInfo() {
@@ -151,6 +169,17 @@ export default {
         });
       }
     },
+    toDetail(value, target) {
+      let name = '';
+      let blockid = value;
+      if(target === 'number'){name = 'blockDetail'};
+      if(target === 'miner'){name = 'address'};
+      if(target === 'txns'){name = 'transactionsPage'};
+      this.$router.push({
+        name: name,
+        params: { blockid: blockid, type: target }
+      });
+    },
     jumpTo(number, type) {
       if (type == "hash") {
         this.$router.push({
@@ -179,6 +208,10 @@ export default {
 };
 </script>
 <style scoped lang='scss'>
+.li-border{
+  border-bottom: 1px solid #e7eaf3;
+  padding: 10px 0
+}
 h1 {
   margin: 0;
   font-weight: 400;
@@ -196,7 +229,7 @@ li {
   justify-content: space-between;
 }
 p {
-  margin: 12px 0;
+  margin: 0;
 }
 .detail-wrap {
   border: 1px solid #bce8f1;
@@ -215,6 +248,7 @@ p {
 .text-left {
   flex: 1;
   text-align: left;
+  font-weight: 600;
 }
 .text-right {
   flex: 4;
@@ -243,11 +277,14 @@ p {
 @media screen and (max-width: 768px) {
   li {
     display: block;
-    margin-bottom: 5px;
-    margin-top: 10px;
+    // margin-bottom: 5px;
+    // margin-top: 10px;
   }
   p {
     margin: 0;
+  }
+  .text-right,.text-right-two {
+    margin-top: 10px
   }
 }
 </style>

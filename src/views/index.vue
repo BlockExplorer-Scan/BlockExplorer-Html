@@ -133,6 +133,24 @@ export default {
   },
   created() {
     this.getData();
+     var EventUtil = {
+        addHandler: function (element, type, handler) {
+            if (element.addEventListener) {
+                element.addEventListener(type, handler, false);
+            } else if (element.attachEvent) {
+                element.attachEvent("on" + type, handler);
+            } else {
+                element["on" + type] = handler;
+            }
+        }
+    };
+    EventUtil.addHandler(window, "online",  () =>{
+         console.log("连上网了！");
+          this.getData();
+    });
+    EventUtil.addHandler(window, "offline", () =>{ 
+         console.log("网络不给力，请检查网络设置!");
+    });
     // this.unit ='ava'
   },
   methods: {
@@ -217,6 +235,8 @@ export default {
     },
     global_callback(e) {
       this.newData = JSON.parse(e.data);
+      
+      // console.log(JSON.stringify(this.newData) );
       this.newData.block.timestamp = this.$time(
         this.time1 - this.newData.block.timestamp
       );

@@ -4,7 +4,58 @@
       <span style="font-weight:600">Etherscan</span> - Sponsored slots available.
       <span class="jump">Book your slot here!</span>
     </div> -->
-    <div class="overview">
+     <div class="overview" v-if="this.$route.query.hide">
+      <div class="overview-item-wrap">
+        <div class="overview-item noborder">
+          <p>
+            <el-checkbox checked style="margin-right:5px"></el-checkbox>
+            <span style="margin-right:5px">{{$t('message.Summary')}}</span>
+            <span style="color:rgb(192, 192, 192)">[ERC-20]</span>
+          </p>
+        </div>
+        <div class="overview-item">
+          <p class="flex2">{{$t('message.TotalSupply')}}:</p>
+          <p class="flex3">{{tokensCounts.TokenTotalSupply | thousandFilter}} {{tokensCounts.statusName}}</p>
+        </div>
+        <div class="overview-item">
+          <p class="flex2">{{$t('message.Name')}}:</p>
+          <p class="flex3">
+            <span>{{tokensCounts.statusName}}</span>
+          </p>
+        </div>
+        <div class="overview-item" style="border-bottom:1px solid #ddd">
+          <p class="flex2">Holders:</p>
+          <p class="flex3">{{HoldersNum}} {{$t('message.addresses')}}</p>
+        </div>
+      </div>
+      <div class="overview-item-wrap">
+        <div class="overview-item noborder">
+          <p>
+            <span style="color:#B3B6B7;margin-right:5px">Rep</span>
+            <!-- <i class="fa fa-circle-thin"></i> -->
+          </p>
+        </div>
+        <div class="overview-item">
+          <p class="flex2">{{$t('message.Contract')}}:</p>
+          <p class="flex3" @click="jump">
+            <span class="jump" >{{this.$route.query.tokenAddress}}</span>
+          </p>
+        </div>
+        <div class="overview-item">
+          <p class="flex2">{{$t('message.Decimals')}}:</p>
+          <p class="flex3">
+            <span class="text-hide">{{tokensCounts.decimals}}</span>
+          </p>
+        </div>
+        <!-- <div class="overview-item">
+          <p class="flex2">{{$t('message.Transfers')}}:</p>
+          <p class="flex3">
+            <span>{{tokensCounts.Transfers}}</span>
+          </p>
+        </div> -->
+      </div>
+    </div>
+    <div class="overview" v-if="!this.$route.query.hide">
       <div class="overview-item-wrap">
         <div class="overview-item noborder">
           <p>
@@ -61,7 +112,6 @@
                     </div>
                     <div>
                       <p class="top-color">$0.00</p>
-                      <!-- <p class="bottom-color">$0.00</p> -->
                     </div>
                   </div>
                 </el-dropdown-item>
@@ -162,18 +212,22 @@
         </div>
       </div>
     </div>
+    <div v-if="this.$route.query.hide" style="border:1px solid #ddd;margin-bottom:10px">
+      <div class="block-bg" style="font-weight:bold">{{$t('message.FILTEREDBYTOKENHOLDER')}}</div>
+      <div class="block-bg jump" @click="jump" style="color:#3498db">{{blockid}}</div>
+    </div>
     <el-tabs type="border-card">
-      <el-tab-pane :label="tabTitle.Transactions">
+      <el-tab-pane :label="tabTitle.Transactions" v-if="!hideValue">
         <itable :tableData="tableData" :inOut="inOut" :tableType="Transactions" @detail="toDetail"/>
         <!-- <iPaging @refreshList="refresTransactionList" /> -->
         <iPaging @refreshList="refresTransactionList" :pageCount='TransactionsNum'/>
       </el-tab-pane>
-      <el-tab-pane :label="tabTitle.InternalTxns">
+      <el-tab-pane :label="tabTitle.InternalTxns" v-if="!hideValue">
         <itable :tableData="tableData2" :tableType="Internal" @detail="toDetail"/>
         <iPaging @refreshList="refresMainCoinList" :pageCount='intNum'/>
       </el-tab-pane>
       <el-tab-pane :label="tabTitle.Erc20TokenTxns">
-        <itable :tableData="tableData3" :tableType="Erc20" @detail="toDetail"/>
+        <itable :tableData="tableData3" :tableType="Erc20" @detail="toDetail" :hideValue="true"/>
         <iPaging @refreshList="refresERC20List" :pageCount='tokenNum'/>
       </el-tab-pane>
       <!-- <el-tab-pane :label="tabTitle.MinedBlocks">Mined Blocks</el-tab-pane>
@@ -194,6 +248,8 @@ export default {
   },
   data() {
     return {
+      HoldersNum:'',
+      tokensCounts:{},
       searchWord:'',
       tokenCount:0,
       tokenArr:[],
@@ -229,6 +285,7 @@ export default {
       TransactionsNum:null,
       intNum:null,
       tokenNum:null,
+      hideValue:this.$route.query.hide ? true : false
     };
   },
   filters:{
@@ -239,35 +296,41 @@ export default {
       return num.toFixed(Math.max(0, (m[1] || "").length - m[2]));
     },
   },
-    watch: {
-    $route(to, from) {
-      // 对路由变化作出响应...
-      this.blockid= this.$route.params.blockid,
-      this.type= this.$route.query.type,
-      this.queryTransactionByValue();
-      this.queryMainCoin();
-      this.queryERC20();
-      this.queryTxsCounts();
-      this.getTokenBalance();
-    },
-    searchWord(){
-      console.log(this.searchWord)
-      if(this.searchWord){
-        let arr = []
-        for(let item of this.tokenArr){
-            if(item.tokenAddress.indexOf(this.searchWord) >-1 || item.tokenNumber.indexOf(this.searchWord) >-1 || item.tokenName.indexOf(this.searchWord) >-1){
-              arr.push(item)
-            }
-        }
-        this.searchTokenArr = arr
-      }else{
-        this.searchTokenArr = []
-      }
-    }
-  },
-  created() {
+  watch: {
+  $route(to, from) {
+    // 对路由变化作出响应...
+    this.blockid = this.$route.params.blockid,
+    this.type = this.$route.query.type,
+    this.hideValue = this.$route.query.hide ? this.$route.query.hide : false,
     this.queryTransactionByValue();
     this.queryMainCoin();
+    this.queryERC20();
+    this.queryTxsCounts();
+    this.getTokenBalance();
+  },
+  searchWord(){
+    console.log(this.searchWord)
+    if(this.searchWord){
+      let arr = []
+      for(let item of this.tokenArr){
+          if(item.tokenAddress.indexOf(this.searchWord) >-1 || item.tokenNumber.indexOf(this.searchWord) >-1 || item.tokenName.indexOf(this.searchWord) >-1){
+            arr.push(item)
+          }
+      }
+      this.searchTokenArr = arr
+    }else{
+      this.searchTokenArr = []
+    }
+  }
+  },
+  created() {
+    console.log('是否隐藏'+this.$route.query.hide)
+    if(!this.$route.query.hide){
+      this.queryTransactionByValue();
+      this.queryMainCoin();
+    }
+    
+    
     this.queryERC20();
     this.queryTxsCounts();
     this.getTokenBalance();
@@ -293,6 +356,28 @@ export default {
     }
   },
   mounted(){
+    var EventUtil = {
+        addHandler: function (element, type, handler) {
+            if (element.addEventListener) {
+                element.addEventListener(type, handler, false);
+            } else if (element.attachEvent) {
+                element.attachEvent("on" + type, handler);
+            } else {
+                element["on" + type] = handler;
+            }
+        }
+    };
+    EventUtil.addHandler(window, "online",  () =>{
+         console.log("连上网了！");
+          this.queryTransactionByValue();
+          this.queryMainCoin();
+          this.queryERC20();
+          this.queryTxsCounts();
+          this.getTokenBalance();
+    });
+    EventUtil.addHandler(window, "offline", () =>{ 
+         console.log("网络不给力，请检查网络设置!");
+    });
     Bus.$on("language", data => {
       if (data == "cn") {
         this.tabTitle={
@@ -324,6 +409,15 @@ export default {
       let blockid = value.val;
       this.blockid = blockid;
       this.type = value.type;
+      if(this.$route.query.hide){
+        this.$router.push({
+          name: "address",
+          params: { blockid: value.val },
+          query: { type: value.type , hide: true ,tokenAddress:this.$route.query.tokenAddress,statusName:this.$route.query.statusName }
+        });
+        return
+      }
+      console.log(121212)
       if (value.type == "to" || value.type == "from") {
         this.queryTransactionByValue();
         this.queryMainCoin();
@@ -437,12 +531,37 @@ export default {
       await this.getTime();
       let pageNum = this.pageNum;
       let pageStart = val == undefined ? 0 : (val - 1) * pageNum;
-      this.$fetch("/queryERC20ByContractAddress", {
-        contractAddress: this.blockid,
-        pageStart: pageStart,
-        pageNum: pageNum
-      }).then(response => {
+      let url = ''
+      let jsonData = {}
+      if(this.$route.query.hide){
+        url = '/ERC20Tokens/queryERC20ByTokenAddress',
+        jsonData = {
+          contractAddress: this.blockid,
+          pageStart: pageStart,
+          pageNum: pageNum,
+          tokenAddress: this.$route.query.tokenAddress
+        }
+        this.getTokenCounts()
+      }else{
+        url = '/queryERC20ByContractAddress',
+        jsonData = {
+          contractAddress: this.blockid,
+          pageStart: pageStart,
+          pageNum: pageNum
+        }
+      }
+     
+      // this.$fetch(url, {
+      //   contractAddress: this.blockid,
+      //   pageStart: pageStart,
+      //   pageNum: pageNum
+      // })
+       this.$fetch(url, jsonData)
+      .then(response => {
         if (response.status == 200) {
+          if(this.$route.query.hide){
+            this.txns = response.data[1][0].total
+          }
           this.tableData3 = response.data[0];
           this.tokenNum = Math.ceil(parseInt(response.data[1][0].total) /this.pageNum);
           for (let i = 0; i < this.tableData3.length; i++) {
@@ -494,15 +613,51 @@ export default {
     },
     getTokenBalance(){
       this.$fetch("/Token/getTokenBalance", { address: this.blockid }).then(res => {
-        console.log(res)
         this.tokenArr = res.data
         this.tokenCount = res.data.length
       });
-    }
+    },
+    async getTokenCounts() {
+      this.$fetch("/ERC20Tokens/queryERC20HoldersCounts", {contractAddress: this.$route.query.tokenAddress}).then(res => {
+        this.HoldersNum = res.data;
+        // this.Holders.forEach( ( item, i ) => {
+        //     item.rank = i+1
+        // } );
+      });
+      let params = {
+        contractAddress: this.$route.query.tokenAddress
+      };
+      let { data } = await this.$fetch(
+        "/ERC20Tokens/queryERC20TokenCounts",
+        params
+      );
+
+      this.tokensCounts = data;
+      console.log(999+JSON.stringify(this.tokensCounts))
+      this.tokensCounts.TokenTotalSupply = new Number(
+        this.tokensCounts.TokenTotalSupply
+      )
+        .toLocaleString()
+        .replace(/,/g, "");
+      this.tokensCounts.TokenTotalSupply =
+        parseInt(this.tokensCounts.TokenTotalSupply) /
+        Math.pow(10, this.tokensCounts.decimals);
+    },
+    jump() {
+      this.$router.push({
+        name: "address",
+        params: { blockid: this.blockid, type: "from" },
+        query: { type: "from" }
+      });
+    },
   }
 };
 </script>
 <style scoped lang='scss'>
+.block-bg{
+  text-align: left;
+  margin: 10px 
+}
 .top-color{
   color: #1e2022;
   font-size: 13px;
@@ -559,7 +714,7 @@ p {
   font-size: 13px;
 }
 .overview-item-wrap {
-  width: 55%;
+  width: 48%;
 }
 .overview-item {
   padding: 8px;
@@ -568,7 +723,7 @@ p {
   border-top: 1px solid #ddd;
 }
 .flex2 {
-  flex: 2;
+  flex: 1;
   text-align: left;
 }
 .flex3 {
@@ -585,7 +740,7 @@ p {
   text-overflow: ellipsis;
 }
 .jump {
-  display: inline-block;
+  // display: inline-block;
   cursor: pointer;
   color: #3498db;
   max-width: 130px;

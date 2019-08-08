@@ -128,6 +128,10 @@ const cn = {
         'toResetYourPassword':'重置密碼',
         'Or':'或者',
         'LOGOUT':'退出登录',
+        'Top':'前',
+        'holders':'名持有人',
+        'FromATotalOf':'共',
+        'FILTEREDBYTOKENHOLDER':'按令牌持有者筛选',
     },
     ...zhLocale
 }

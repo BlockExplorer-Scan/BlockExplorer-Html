@@ -6,7 +6,7 @@ const en = {
         'hello': 'hello, world',
         'blocks': 'Blocks',
         'viewAll': 'View All',
-        'NoData': 'No Data',
+        'NoData': 'There are no matching entries',
         'Block': 'Block',
         'mins': 'mins',
         'secsAgo': 'secs ago',
@@ -131,6 +131,10 @@ const en = {
         'Noworries':'No worries',
         'Or':'Or',
         'LOGOUT':'LOGOUT',
+        'Top':'Top',
+        'holders':'holders',
+        'FromATotalOf':'From a total of',
+        'FILTEREDBYTOKENHOLDER':'FILTERED BY TOKEN HOLDER',
     },
     ...enLocale
 }

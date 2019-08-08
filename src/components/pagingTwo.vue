@@ -18,7 +18,7 @@
         <span style="font-size:14px;font-weight:600">{{$t('message.Currentpage')}}: {{currentPage}}</span>
         <el-pagination
           @current-change="handleCurrentChange"
-          :current-page.sync="currentPage"
+          :current-page.sync="selfPage"
           :layout="layout"
           small
           background
@@ -35,7 +35,7 @@
 
 <script>
 export default {
-  props:['pageCount'],
+  props:['pageCount','currentPage'],
   data() {
     return {
       layout: "prev, next",
@@ -58,12 +58,14 @@ export default {
         }
       ],
       pageSize: 20,
-      currentPage: 1,
+      // currentPage: 1,
+      selfPage:this.currentPage
     };
   },
   // watch:{
-  //     pageCount:function(val){
-  //         console.log('------------------------------'+this.pageCount)
+  //     currentPage:function(val){
+  //        console.log('===='+val)
+  //        this.selfPage = val
   //     }
   // },
   methods: {
@@ -73,7 +75,7 @@ export default {
     // },
     //   分页
     handleCurrentChange() {
-      this.$emit("refreshList",this.currentPage);
+      this.$emit("refreshList",this.selfPage);
     }
   },
   // mounted(){
