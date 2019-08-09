@@ -127,10 +127,10 @@ export default {
         Object.keys(res.data[0]).forEach(element => {
           // console.log(element)
           let data = {}
-          // data.name = element;
-          // data.val = name[element];
-          data.name = name[element];
-          data.val= element,
+          data.name = element;
+          data.val = name[element];
+          // data.name = name[element];
+          // data.val= element,
           data.id = i++
           tableData.push(data)
         });
