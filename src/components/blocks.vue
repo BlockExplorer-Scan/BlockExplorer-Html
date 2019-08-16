@@ -105,7 +105,8 @@ export default {
       if(target === 'txns'){name = 'transactionsPage'};
       this.$router.push({
         name: name,
-        params: { blockid: blockid, type: target }
+        params: { blockid: blockid, type: target },
+        query: { blockid: blockid }// 2019.8.14
       });
     }
   },

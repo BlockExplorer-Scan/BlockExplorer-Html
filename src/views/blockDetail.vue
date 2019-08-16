@@ -17,19 +17,22 @@
               <p class="text-left">{{$t('message.TimeStamp')}}:</p>
               <p class="text-right">
                 <span
-                  v-if="detailItem.timestamp[0] > 0"
+                  v-if="detailItem && detailItem.timestamp && detailItem.timestamp[0] > 0"
                 >{{detailItem.timestamp[0]}} days {{detailItem.timestamp[1]}} hours </span>
-                <span v-else-if="detailItem.timestamp[1] > 0">{{detailItem.timestamp[1]}} hours </span>
-                <span v-if="detailItem.timestamp[2] > 0">{{detailItem.timestamp[2]}} mins </span>
-                <span>{{detailItem.timestamp[3]}} secs ago </span>
+                <span v-else-if="detailItem && detailItem.timestamp && detailItem.timestamp[1] > 0">{{detailItem.timestamp[1]}} hours </span>
+                <span v-if="detailItem && detailItem.timestamp && detailItem.timestamp[2] > 0">{{detailItem.timestamp[2]}} mins </span>
+                <span>{{detailItem && detailItem.timestamp && detailItem.timestamp[3]}} secs ago </span>
                 <span>({{detailItem.timestampUTC}})</span>
               </p>
             </li>
             <li class="li-border">
               <p class="text-left">{{$t('message.Transactions')}}:</p>
+              <!-- <p
+                class="text-right jump" @click="toDetail(detailItem.number,'txns')"
+              >{{detailItem.transactions == [] ? 0 : detailItem.transactions.length}}</p> -->
               <p
                 class="text-right jump" @click="toDetail(detailItem.number,'txns')"
-              >{{detailItem.transactions == [] ? 0 : detailItem.transactions.length}}</p>
+              >{{detailItem && detailItem.transactions && detailItem.transactions.length}}</p>
             </li>
             <li class="li-border">
               <p class="text-left">{{$t('message.BlockHash')}}:</p>
@@ -82,9 +85,8 @@
             <li class="li-border">
               <p class="text-left">{{$t('message.BlockReward')}}:</p>
               <!-- <p class="text-right">'3ETH+'+{{detailItem.size}}</p> -->
-              <p
-                class="text-right"
-              >{{3+detailItem.gasUsed/Math.pow(10,18)}} {{detailItem.maincoinName}}&nbsp;&nbsp;(3&nbsp; {{detailItem.maincoinName}}+{{detailItem.gasUsed/Math.pow(10,18)}})</p>
+              <p class="text-right">
+                {{parseFloat(detailItem.blockReward)+detailItem.gasUsed/Math.pow(10,18)}} {{detailItem.maincoinName}}&nbsp;&nbsp;(3&nbsp;{{detailItem.maincoinName}}+{{detailItem.gasUsed/Math.pow(10,18)}})</p>
             </li>
             <li class="li-border">
               <p class="text-left">{{$t('message.UnclesReward')}}:</p>
@@ -177,7 +179,8 @@ export default {
       if(target === 'txns'){name = 'transactionsPage'};
       this.$router.push({
         name: name,
-        params: { blockid: blockid, type: target }
+        params: { blockid: blockid, type: target },
+        query: { blockid: blockid }// 2019.8.14
       });
     },
     jumpTo(number, type) {

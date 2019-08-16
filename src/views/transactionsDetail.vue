@@ -15,7 +15,8 @@
             </li>
             <li class="li-border">
               <p class="text-left">{{$t('message.TxReceiptStatus')}}:</p>
-              <p class="text-right" style="color:rgb(0, 128, 0)">{{$t('message.Success')}}</p>
+              <p class="text-right" v-if="detailItem.status != 'Fail'" style="color:rgb(0, 128, 0)">{{$t('message.Success')}}</p>
+              <p class="text-right" v-else style="color:red">{{detailItem.status}}</p>
               <!-- <p class="text-right">{{detailItem.txReceipt || Success}}</p> -->
             </li>
             <li class="li-border">
@@ -24,7 +25,7 @@
             </li>
             <li class="li-border">
               <p class="text-left">{{$t('message.TimeStamp')}}:</p>
-              <p class="text-right">
+              <p class="text-right" v-if="detailItem.length != 0">
                 <span v-if="detailItem.timestamp[0] > 0">
                   {{detailItem.timestamp[0]}} days
                   {{detailItem.timestamp[1]}} hours
@@ -50,7 +51,7 @@
                 v-for="item in internalTran" :key="item.transactionHash">
                   <img src="../assets/right.jpg" style="width:12px;height:12px">
                   <span class="inline-block" style="color: #77838f!important;font-size:12px">&nbsp;&nbsp; TRANSFER &nbsp;</span>
-                  <span class="inline-block" style="font-size:12px">{{(item.value/Math.pow(10, 18)).toFixed(0)}} AVA </span>
+                  <span class="inline-block" style="font-size:12px">{{(item.value/Math.pow(10, 18)).toFixed(0)}}  {{detailItem.maincoinName}} </span>
                   <span class="inline-block " style="color: #77838f!important;">&nbsp;{{$t('message.From')}} &nbsp;</span>
                   <span class="jump tran-form">{{item.from}}</span>
                   <span class="inline-block" style="color: #77838f!important;">&nbsp;{{$t('message.To')}}&nbsp;</span>
@@ -78,7 +79,7 @@
             </li>
             <li class="li-border">
               <p class="text-left">{{$t('message.Value')}}:</p>
-              <p class="text-right">{{(detailItem.value/Math.pow(10, 18)).toFixed(0)}}  {{detailItem.maincoinName}}</p>
+              <p class="text-right">{{(detailItem.value/Math.pow(10, 18))}} {{detailItem.maincoinName}}</p>
             </li>
             <li class="li-border">
               <p class="text-left">{{$t('message.GasLimit')}}:</p>
@@ -204,7 +205,6 @@ export default {
   filters: {
     science(num) {
       num = num / Math.pow(10, 18);
-      // return num
       let m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/);
       return num.toFixed(Math.max(0, (m[1] || "").length - m[2]));
     },
@@ -218,16 +218,16 @@ export default {
     this.queryTransactionByValue(blockid);
     this.queryERC20ByTransaction(blockid);
     this.getInternalTran(blockid)
-     var EventUtil = {
-        addHandler: function (element, type, handler) {
-            if (element.addEventListener) {
-                element.addEventListener(type, handler, false);
-            } else if (element.attachEvent) {
-                element.attachEvent("on" + type, handler);
-            } else {
-                element["on" + type] = handler;
-            }
-        }
+    var EventUtil = {
+      addHandler: function (element, type, handler) {
+          if (element.addEventListener) {
+              element.addEventListener(type, handler, false);
+          } else if (element.attachEvent) {
+              element.attachEvent("on" + type, handler);
+          } else {
+              element["on" + type] = handler;
+          }
+      }
     };
     EventUtil.addHandler(window, "online",  () =>{
         console.log("连上网了！");

@@ -79,9 +79,10 @@
       </el-table-column>
       <el-table-column :label="tableTitle.Reward" min-width="100">
         <template slot-scope="scope">
-          <span
-            style="margin-left: 10px"
-          >{{ scope.row.gasUsed| multiple}} {{scope.row.maincoinName}}</span>
+          <span style="margin-left: 10px">
+            {{scope.row.Reward | changeReward}} 
+            {{scope.row.maincoinName}}</span>
+          <!-- <span style="margin-left: 10px">{{ scope.row.gasUsed| multiple}} {{scope.row.maincoinName}}</span> -->
         </template>
       </el-table-column>
     </el-table>
@@ -165,6 +166,20 @@ export default {
       ],
       pageSize: 20
     };
+  },
+  filters: {
+    changeReward(val) {
+      if(val.toString().includes('.')){
+         if(val.toString().includes('.00000')){
+          return val.toString().substring(0,1)
+        }else{
+           return val.toFixed(5)
+        }
+      }else{
+        return val
+      }
+      
+    }
   },
   created() {
     this.queryblock(this.pageStart, this.pageNum);
@@ -250,6 +265,7 @@ export default {
             let newTime = this.tableData[i].timestamp;
             this.tableData[i].timestamp = this.$time(this.time1 - newTime);
             this.tableData[i].timestampUTC = this.$timestampToTimeUtc(newTime);
+            this.tableData[i].Reward = parseFloat(this.tableData[i].blockReward)+this.tableData[i].gasUsed/Math.pow(10,18)
           }
         }
       });
@@ -263,7 +279,8 @@ export default {
       } else if (type == "transactions") {
         this.$router.push({
           name: "transactionsPage",
-          params: { blockid: index }
+          params: { blockid: index },
+          query: { blockid: index }// 2019.8.14
         });
       } else {
         this.$router.push({

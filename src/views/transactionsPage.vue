@@ -13,9 +13,10 @@
       <el-table-column :label="tableTitle.TxHash"  show-overflow-tooltip>
         <template slot-scope="scope">
           <!-- <i class="el-icon-time"></i> -->
-          <div slot="reference" class="name-wrapper" @click="toDetail(scope.row.hash,'hash')">
+          <div slot="reference" class="name-wrapper" @click="toDetail(scope.row.hash,'hash')" style="display:flex">
             <!-- <el-tag size="medium">{{ scope.row.name }}</el-tag> -->
-            {{scope.row.hash}}
+            <!-- <span style="background:#de4437;color:#fff;width:23px;border-radius:50%;text-align:center;margin:0;margin-right:5px" v-if="scope.row.status == 'Fail'">!</span> -->
+            <p class="show-space" style="margin:0"> <span style="display:inline-block;background:#de4437;color:#fff;width:14px;height:14px;line-height:14px;font-size:10px;border-radius:50%;text-align:center;margin:0;margin-right:5px" v-if="scope.row.status == 'Fail'">!</span>{{scope.row.hash}}</p>
           </div>
         </template>
       </el-table-column>
@@ -159,7 +160,7 @@ export default {
     };
   },
   created() {
-    let blockid = this.$route.params.blockid;
+    let blockid = this.$route.query.blockid;
     if (blockid != null) {
       this.queryTransactionByValue(blockid);
     } else {
@@ -267,11 +268,12 @@ export default {
             this.tableData[i].timestampUTC = this.$timestampToTimeUtc(newTime);
           }
         }
-        console.log(this.tableData)
+        // console.log(this.tableData[i].timestamp)
       });
     },
 
-    queryTransactionByValue(blockid) {
+    async queryTransactionByValue(blockid) {
+      await this.getTime();
       this.$fetch("/queryTransactionByValue", {
         blockNumber: blockid
       }).then(response => {
@@ -279,7 +281,8 @@ export default {
           this.tableData = response.data;
           for (let i = 0; i < response.data.length; i++) {
             let newTime = this.tableData[i].timestamp;
-            this.tableData[i].timestamp = this.$timestampToTime(newTime);
+            // this.tableData[i].timestamp = this.$timestampToTime(newTime);
+            this.tableData[i].timestamp = this.$time(this.time1 - newTime);
           }
         }
       });
@@ -317,10 +320,20 @@ export default {
   vertical-align: middle;
   white-space: nowrap;
   text-overflow: ellipsis;
+  
 }
 .blue {
   cursor: pointer;
   color: #3498db;
+}
+.show-space{
+  /* width: 90%; */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+  -webkit-text-overflow: ellipsis;
+  -moz-text-overflow: ellipsis;
 }
 .name-wrapper {
   width: 100%;
