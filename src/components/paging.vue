@@ -38,7 +38,7 @@ export default {
   props:['pageCount'],
   data() {
     return {
-      layout: "prev, next",
+      layout: "prev, next,jumper",
       pageSizes: [
         {
           value: 20,

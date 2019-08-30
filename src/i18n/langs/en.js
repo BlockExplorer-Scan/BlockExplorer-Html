@@ -135,6 +135,13 @@ const en = {
         'holders':'holders',
         'FromATotalOf':'From a total of',
         'FILTEREDBYTOKENHOLDER':'FILTERED BY TOKEN HOLDER',
+        "TOKENNAME":"TOKEN NAME",
+        "TRANSFERSTART":"TRANSFER START",
+        "TRANSFEREND":"TRANSFER END",
+        "TIMESTART":"TIME START",
+        "TIMEEND":"TIME END",
+        "TIMETO":"To",
+        "SEARCH":"SEARCH",
     },
     ...enLocale
 }

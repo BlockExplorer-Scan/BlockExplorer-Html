@@ -132,6 +132,13 @@ const cn = {
         'holders':'名持有人',
         'FromATotalOf':'共',
         'FILTEREDBYTOKENHOLDER':'按令牌持有者筛选',
+        "TOKENNAME":"代币名称",
+        "TRANSFERSTART":"转账金额起始值",
+        "TRANSFEREND":"转账金额结束值",
+        "TIMESTART":"开始日期",
+        "TIMEEND":"结束日期",
+        "TIMETO":"至",
+        "SEARCH":"搜索",
     },
     ...zhLocale
 }

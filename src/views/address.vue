@@ -218,15 +218,18 @@
     </div>
     <el-tabs type="border-card">
       <el-tab-pane :label="tabTitle.Transactions" v-if="!hideValue">
+        <Search @getSearchData="changeTableDataOne" type='transaciton'></Search>
         <itable :tableData="tableData" :inOut="inOut" :tableType="Transactions" @detail="toDetail"/>
         <!-- <iPaging @refreshList="refresTransactionList" /> -->
         <iPaging @refreshList="refresTransactionList" :pageCount='TransactionsNum'/>
       </el-tab-pane>
       <el-tab-pane :label="tabTitle.InternalTxns" v-if="!hideValue">
+        <Search @getSearchData="changeTableDataTwo" type='internal'></Search>
         <itable :tableData="tableData2" :tableType="Internal" @detail="toDetail"/>
         <iPaging @refreshList="refresMainCoinList" :pageCount='intNum'/>
       </el-tab-pane>
       <el-tab-pane :label="tabTitle.Erc20TokenTxns">
+        <Search @getSearchData="changeTableDataThree" type='Erc20'></Search>
         <itable :tableData="tableData3" :tableType="Erc20" @detail="toDetail" :hideValue="true"/>
         <iPaging @refreshList="refresERC20List" :pageCount='tokenNum'/>
       </el-tab-pane>
@@ -241,10 +244,12 @@
 import Bus from "@/bus.js";
 import itable from "@/components/tabel.vue";
 import iPaging from "@/components/paging.vue";
+import Search from "@/components/search.vue"
 export default {
   components: {
     itable,
-    iPaging
+    iPaging,
+    Search
   },
   data() {
     return {
@@ -285,7 +290,14 @@ export default {
       TransactionsNum:null,
       intNum:null,
       tokenNum:null,
-      hideValue:this.$route.query.hide ? true : false
+      hideValue:this.$route.query.hide ? true : false,
+      ifSearch:false,
+      SearchWho:'',
+      urlQuery:this.$route.query,
+      urlParams:this.$route.params,
+      tokenNameArr:[],//代币所有信息
+      tokenName:[],//只有代币名称
+      realTokenName:''
     };
   },
   filters:{
@@ -298,15 +310,27 @@ export default {
   },
   watch: {
   $route(to, from) {
+    console.log(to)
+    console.log(from)
     // 对路由变化作出响应...
-    this.blockid = this.$route.params.blockid,
-    this.type = this.$route.query.type,
-    this.hideValue = this.$route.query.hide ? this.$route.query.hide : false,
-    this.queryTransactionByValue();
-    this.queryMainCoin();
-    this.queryERC20();
-    this.queryTxsCounts();
-    this.getTokenBalance();
+    this.blockid = this.$route.params.blockid
+    this.type = this.$route.query.type
+    this.hideValue = this.$route.query.hide ? this.$route.query.hide : false
+    if(this.this.$route.query.pageStart ){//当处于搜索状态时
+      if(this.SearchWho == 'transaction'){
+        this.searchTableDataOne(1,this.pageStart,this.pageNum)
+      }else if(this.SearchWho == 'internal'){
+        this.searchTableDataOne(1,this.pageStart,this.pageNum)
+      }else{
+        this.searchTableDataOne(1,this.pageStart,this.pageNum)
+      }
+    }else{
+      this.queryTransactionByValue();
+      this.queryMainCoin();
+      this.queryERC20();
+      this.queryTxsCounts();
+      this.getTokenBalance();
+    }
   },
   searchWord(){
     console.log(this.searchWord)
@@ -324,18 +348,15 @@ export default {
   }
   },
   created() {
-    console.log('是否隐藏'+this.$route.query.hide)
     if(!this.$route.query.hide){
       this.queryTransactionByValue();
       this.queryMainCoin();
     }
-    
-    
     this.queryERC20();
+    this.getTokenName()
     this.queryTxsCounts();
     this.getTokenBalance();
     if(this.$i18n.locale == 'cn'){
-      // alert(1212)
        this.tabTitle={
         Transactions:'交易',
         InternalTxns:'内部交易',
@@ -356,6 +377,8 @@ export default {
     }
   },
   mounted(){
+    console.log('下边是路由信息')
+    console.log(this.$route)
     var EventUtil = {
         addHandler: function (element, type, handler) {
             if (element.addEventListener) {
@@ -400,9 +423,174 @@ export default {
     }});
   },
   methods: {
+    // 搜索数据改变表格1
+    changeTableDataOne(data){
+      // this.currentPage = 1
+      this.ifSearch = true
+      this.SearchWho = 'transaction'
+      this.searchData = data
+      this.pageStart = 0
+      this.searchTableDataOne(1,this.pageStart,this.pageNum)
+    },
+    // 查询搜索数据表格1
+    async searchTableDataOne(page,pageStart,pageNum){
+      await this.getTime()
+      this.searchData.pageStart = pageStart
+      this.searchData.pageNum = pageNum
+      // this.searchData.ifSearch = this.ifSearch
+      Object.assign(this.urlQuery,this.searchData)
+      console.log('合并后的结果5555:------------'+JSON.stringify(this.urlQuery))
+      this.$router.push({
+          name: "address",
+          params: this.urlParams,
+          query: this.urlQuery
+      });
+      this.$fetch("/Conditional/rangeQueryOuter", 
+        this.searchData
+      ).then(response => {
+        if (response.status == 200) {
+          this.tableData = response.data[0];
+          this.TransactionsNum = Math.ceil(parseInt(response.data[1][0].total) /this.pageNum);
+          if (response.data.length == 0 && this.fromOrTo) {
+            this.fromOrTo = false;
+            this.queryTransactionByValue();
+          } else {
+            for (let i = 0; i < this.tableData.length; i++) {
+              let newTime = this.tableData[i].timestamp;
+              if (this.tableData[i].status == "OUT") {
+                this.tableData[i].inOut = true;
+              } else {
+                this.tableData[i].inOut = false;
+              }
+              this.tableData[i].timestamp = this.$time(this.time1 - newTime);
+              this.tableData[i].inOut =
+                this.tableData[i].to == this.blockid ? false : true;
+              this.tableData[i].status =
+                this.tableData[i].to == this.blockid ? "IN" : "OUT";
+            }
+          }
+        }
+      });
+    },
+    // 搜索数据改变表格2
+    changeTableDataTwo(data){
+      // this.currentPage = 1
+      this.ifSearch = true
+      this.SearchWho = 'internal'
+      this.searchData = data
+      if(this.searchData.timeStart) this.searchData.timeStart = this.searchData.timeStart * 1000
+      if(this.searchData.timeEnd) this.searchData.timeEnd = this.searchData.timeEnd * 1000
+      this.pageStart = 0
+      this.searchTableDataTwo(1,this.pageStart,this.pageNum)
+    },
+    // 查询搜索数据表格2
+    async searchTableDataTwo(page,pageStart,pageNum){
+      await this.getTime()
+      this.searchData.pageStart = pageStart
+      this.searchData.pageNum = pageNum
+      if(this.SearchWho == 'internal' &&  this.searchData.transferStart ){
+        this.searchData.transferStart = this.changepPrice(this.searchData.transferStart)
+      }
+      if(this.SearchWho == 'internal' &&  this.searchData.transferEnd ){
+        this.searchData.transferEnd = this.changepPrice(this.searchData.transferEnd)
+      }
+      console.log(this.searchData)
+      Object.assign(this.urlQuery,this.searchData)
+      console.log('合并后的结果5555:------------'+JSON.stringify(this.urlQuery))
+      this.$router.push({
+          name: "address",
+          params: this.urlParams,
+          query: this.urlQuery
+      });
+      this.$fetch("/Conditional/rangeQueryInner", 
+        this.searchData
+      ).then(response => {
+        if (response.status == 200) {
+          this.tableData2 = response.data[0];
+          this.intNum = Math.ceil(parseInt(response.data[1][0].total) /this.pageNum);
+          for (let i = 0; i < this.tableData2.length; i++) {
+            this.tableData2[i].inOut =
+            this.tableData2[i].to == this.blockid ? false : true;
+            let newTime = this.tableData2[i].timestamp;
+            this.tableData2[i].timestamp = this.$time(this.time1 - newTime/ 1000);
+          }
+        }
+      });
+    },
+    // 搜索数据改变表格3
+    changeTableDataThree(data){
+      // this.currentPage = 1
+      this.ifSearch = true
+      this.SearchWho = 'internal'
+      this.searchData = data
+      if(this.searchData.timeStart) this.searchData.timeStart = this.searchData.timeStart * 1000
+      if(this.searchData.timeEnd) this.searchData.timeEnd = this.searchData.timeEnd * 1000
+      this.pageStart = 0
+      if(this.searchData.tokenName){
+        this.realTokenName = this.searchData.tokenName
+        if(this.tokenName.includes(this.realTokenName)){
+          for(let item of this.tokenNameArr){
+            if(this.searchData.tokenName == item.val){
+              this.searchData.tokenName = item.name
+          }
+        }
+        }else{
+          this.$message({
+            message: '代币名称不存在',
+            type: 'warning'
+          });
+          return
+        }
+      }
+      this.searchTableDataThree(1,this.pageStart,this.pageNum)
+    },
+    // 查询搜索数据表格3
+    async searchTableDataThree(page,pageStart,pageNum){
+      await this.getTime()
+      this.searchData.pageStart = pageStart
+      this.searchData.pageNum = pageNum
+      
+      Object.assign(this.urlQuery,this.searchData)
+      console.log('合并后的结果5555:------------'+JSON.stringify(this.urlQuery))
+      this.$router.push({
+          name: "address",
+          params: this.urlParams,
+          query: this.urlQuery
+      });
+      this.$fetch("/Conditional/rangeQueryERC20", 
+        this.searchData
+      ).then(response => {
+        if (response.status == 200) {
+          console.log(888888888888888888)
+         if(this.$route.query.hide){
+            this.txns = response.data[1][0].total
+          }
+          this.tableData3 = response.data[0];
+          this.tokenNum = Math.ceil(parseInt(response.data[1][0].total) /this.pageNum);
+          for (let i = 0; i < this.tableData3.length; i++) {
+            if ("timestamp" in this.tableData3[i]) {
+              let newTime = this.tableData3[i].timestamp;
+              this.tableData3[i].timestamp = this.$time(this.time1 - newTime/ 1000);
+            }
+            // if(this.realTokenName) this.tableData3[i].statusName = this.realTokenName;
+            this.tableData3[i].hash = this.tableData3[i].blockHash;
+            this.tableData3[i].token = "ERC-20";
+            this.tableData3[i].value = this.tableData3[i].data;
+            this.tableData3[i].inOut =
+              this.tableData3[i].to == this.blockid ? false : true;
+            this.tableData3[i].status =
+              this.tableData3[i].to == this.blockid ? "IN" : "OUT";
+          }
+          console.log(this.tableData3)
+        }
+      });
+    },
+    search(data){
+      // console.log(data)
+    },
     handleCommand(command) {
-        // this.$message('click on item ' + command);
-      },
+      // this.$message('click on item ' + command);
+    },
     // 页面跳转 value.val 跳转参数  value.type 跳转类型
     toDetail(value) {
       let that = this;
@@ -494,7 +682,6 @@ export default {
               }
               this.tableData[i].timestamp = this.$time(this.time1 - newTime);
               // this.tableData[i].timestamp = this.$timestampToTime(newTime);
-
               this.tableData[i].inOut =
                 this.tableData[i].to == this.blockid ? false : true;
               this.tableData[i].status =
@@ -585,23 +772,40 @@ export default {
     },
     // 刷新queryTransactionByValue
     refresTransactionList(val) {
-      this.queryTransactionByValue(val);
+      if(this.ifSearch){
+        let pageNum = this.pageNum;
+        let pageStart = val == undefined ? 0 : (val - 1) * pageNum ;
+        this.searchTableDataOne(val,pageStart,pageNum)
+      }else{
+        this.queryTransactionByValue(val);
+      }
     },
     // 刷新queryMainCoinByContractAddress
     refresMainCoinList(val) {
-      this.queryMainCoin(val);
+      if(this.ifSearch){
+        let pageNum = this.pageNum;
+        let pageStart = val == undefined ? 0 : (val - 1) * pageNum ;
+        this.searchTableDataTwo(val,pageStart,pageNum)
+      }else{
+        this.queryMainCoin(val);
+      }
     },
     // 刷新queryERC20ByContractAddress
     refresERC20List(val) {
-      this.queryERC20(val);
+      // this.queryERC20(val);
+       if(this.ifSearch){
+        let pageNum = this.pageNum;
+        let pageStart = val == undefined ? 0 : (val - 1) * pageNum ;
+        this.searchTableDataThree(val,pageStart,pageNum)
+      }else{
+        this.queryERC20(val);
+      }
     },
     // queryTxsCounts?address=
     async queryTxsCounts() {
       this.$fetch("/queryTxsCounts", { address: this.blockid }).then(res => {
         this.balance = res.data.balance;
-        // this.TransactionsNum = parseInt(res.data.txns);
         this.TransactionsNum = Math.ceil(parseInt(res.data.txns) /this.pageNum);
-        // console.log(typeof this.TransactionsNum)
         this.txns = res.data.txns;
         this.value = res.data.value;
         this.maincoinName = res.data.maincoinName;
@@ -648,6 +852,34 @@ export default {
         name: "address",
         params: { blockid: this.blockid, type: "from" },
         query: { type: "from" }
+      });
+    },
+    // 10进制转换为类似‘0x00d5’格式的16进制
+    // str_pad(hex){
+    //   let hex = hex.toString(16)
+    //   let zero = '0000';
+    //   let tmp  = 4-hex.length;
+    //   return '0x' + zero.substr(0,tmp) + hex;
+    // }
+    // 内部交易搜索转账金额处理
+    changepPrice(num){
+      return '0x' + (num*Math.pow(10, 18)).toString(16)
+    },
+    getTokenName() {
+      this.$fetch("/ERC20Tokens/queryERC20Contracts").then(res => {
+        let tokenNameArr = this.tokenNameArr;
+        let name = res.data[0];
+        let i = 1 ;
+        Object.keys(res.data[0]).forEach(element => {
+          // console.log(element)
+          let data = {}
+          data.name = element;
+          data.val = name[element];
+          data.id = i++
+          this.tokenNameArr.push(data)
+          this.tokenName.push(name[element])
+        });
+        console.log('zhubi migncheng'+JSON.stringify(this.tokenNameArr))
       });
     },
   }

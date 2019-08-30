@@ -1,5 +1,20 @@
 <template>
   <div class="wrap">
+    <Search type="transaciton" @getSearchData="changeTableData"></Search>
+    <!-- <div class="flex-div">
+      <el-input v-model="input" placeholder="From" clearable></el-input>
+      <el-input v-model="input" placeholder="To" clearable></el-input>
+      <el-input v-model="input" placeholder="AVA金额开始数值" clearable></el-input>
+      <el-input v-model="input" placeholder="AVA金额结束数值" clearable></el-input>
+      <el-date-picker
+        v-model="value3"
+        type="datetimerange"
+        range-separator="至"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期">
+      </el-date-picker>
+      <el-button type="primary" icon="el-icon-search" size="mini">搜索</el-button>
+    </div> -->
     <el-table
       :data="tableData"
       style="margin:0 auto 30px;"
@@ -119,9 +134,13 @@
 <script>
 
 import Bus from "@/bus.js";
+import Search from "@/components/search.vue"
 export default {
+  components:{Search},
   data() {
     return {
+      input:'',
+      value3:'',
       tableTitle: {
         TxHash: "TxHash",
         Block: "Block",
@@ -136,7 +155,7 @@ export default {
       pageStart: (parseInt(this.$route.query.page)-1) == 0 ? 0 : (parseInt(this.$route.query.page)-1)*20,
       pageNum: 20,
       pages: 1,
-      layout: "prev, next",
+      layout: "prev, next,jumper",
       pageSizes: [
         {
           value: 20,
@@ -156,15 +175,21 @@ export default {
         }
       ],
       pageSize: 20,
-      time1: 0
+      time1: 0,
+      searchData:{}
     };
   },
   created() {
+    console.log(999+JSON.stringify(this.$route.query.data) )
     let blockid = this.$route.query.blockid;
     if (blockid != null) {
       this.queryTransactionByValue(blockid);
     } else {
-      this.querytransaction(this.pageStart, this.pageNum);
+      if(this.$route.query.ifSearch){
+        this.searchTableData(this.currentPage,this.pageStart,this.pageNum)
+      }else{
+        this.querytransaction(this.pageStart, this.pageNum);
+      }
     }
     var EventUtil = {
         addHandler: function (element, type, handler) {
@@ -237,6 +262,33 @@ export default {
     });
   },
   methods: {
+    // 搜索数据改变
+    changeTableData(data){
+      this.currentPage = 1
+      this.searchData = data
+      // sessionStorage.setItem('rangeQueryOuterData',data)
+      this.searchTableData(this.currentPage,this.pageStart,this.pageNum)
+    },
+    // 查询搜索数据
+    async searchTableData(page,pageStart,pageNum){
+      await this.getTime()
+      this.searchData.pageStart = pageStart
+      this.searchData.pageNum = pageNum
+      this.$router.push({ path:'/transtion/transactionsPage', query: { page: page,ifSearch:true,data:this.searchData }})
+      this.$fetch("/Conditional/rangeQueryOuter", 
+        this.searchData
+      ).then(response => {
+        if (response.status == 200) {
+          this.tableData = response.data;
+          console.log(response.data)
+          for (let i = 0; i < response.data.length; i++) {
+            let newTime = this.tableData[i].timestamp;
+            this.tableData[i].timestamp = this.$time(this.time1 - newTime);
+            this.tableData[i].timestampUTC = this.$timestampToTimeUtc(newTime);
+          }
+        }
+      });
+    },
     // 每页展示条目
     handleSizeChange(val) {
       // 修改展示数目 重置当前页
@@ -250,8 +302,12 @@ export default {
       let that = this;
       let pageNum = this.pageNum;
       let pageStart = (val - 1) * pageNum ;
-      this.$router.push({ path:'/transtion/transactionsPage', query: { page: this.currentPage }})
-      this.querytransaction(pageStart, pageNum);
+      if(this.$route.query.ifSearch){
+        this.searchTableData(val,pageStart, pageNum)
+      }else{
+        this.$router.push({ path:'/transtion/transactionsPage', query: { page: this.currentPage }})
+        this.querytransaction(pageStart, pageNum);
+      }
     },
     // 获取数据 params start :开始数据 number :数据条目
     async querytransaction(start, number) {
@@ -268,7 +324,6 @@ export default {
             this.tableData[i].timestampUTC = this.$timestampToTimeUtc(newTime);
           }
         }
-        // console.log(this.tableData[i].timestamp)
       });
     },
 
@@ -315,6 +370,22 @@ export default {
 };
 </script>
 <style scoped>
+.flex-div{
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom:10px
+}
+.el-input{
+  min-width: 170px;
+  width: auto;
+  margin: 5px ;
+}
+.el-input .el-input__inner{
+  padding: 0 10px
+}
+.el-range-editor{
+   margin: 0 5px ;
+}
 .cell{
   overflow: hidden;
   vertical-align: middle;

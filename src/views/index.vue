@@ -167,6 +167,7 @@ export default {
               "您的浏览器不支持websocket协议,建议使用新版谷歌、火狐等浏览器，请勿使用IE10以下浏览器，360浏览器请使用极速模式，不要使用兼容模式！"
             );
           }
+          console.log(_this.ws)
           _this.initEventHandle();
         }
       } catch (e) {

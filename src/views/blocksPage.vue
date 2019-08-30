@@ -144,7 +144,7 @@ export default {
       pages: 1,
       total: 0,
       height: "40",
-      layout: " slot,prev, next",
+      layout: " slot,prev, next,jumper",
       time1: 0,
       pageSizes: [
         {
