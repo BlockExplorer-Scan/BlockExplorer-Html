@@ -141,7 +141,19 @@ const en = {
         "TIMESTART":"TIME START",
         "TIMEEND":"TIME END",
         "TIMETO":"To",
-        "SEARCH":"SEARCH",
+        "SEARCH":"SEARCH",  
+        "rightFrom":"Please enter the correct From",
+        "rightTo":"Please enter the correct To",
+        "allPrice":"The scope of transfer amount must be complete",
+        "rightPrice":"Error in the scope of transfer amount",
+        "needSearch":"At least one search condition is needed",
+        "failedContract":"Contract Creation",
+        "noMore10000":"The number of queries must not exceed 10,000!",
+        "rightTime":"Query time must be complete",
+        "goto":"GO TO",
+        "sure":"Enter",
+        "prev":"prev",
+        "next":"next"
     },
     ...enLocale
 }

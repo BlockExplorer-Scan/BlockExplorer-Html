@@ -45,7 +45,8 @@
               <div class="text-right" style="align-self:flex-start;">
                 <div>
                   <span v-if="detailItem.status == 'IN'">{{$t('message.Contract')}}</span>
-                  <span class="jump" @click="jumpTo(detailItem.to,'to')">  {{detailItem.to}}</span>
+                  <span class="jump" @click="jumpTo(detailItem.to,'to')" v-if="detailItem.to">  {{detailItem.to}}</span>
+                  <span v-else>  {{$t('message.failedContract')}}</span>
                 </div>
                 <div style="font-size:12px;display:flex;align-items:center;flex-wrap:wrap;margin-top:10px" 
                 v-for="item in internalTran" :key="item.transactionHash">

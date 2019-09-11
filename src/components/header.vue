@@ -206,6 +206,7 @@
             <span style="color: #777;font-size: 20px;margin-top: 8px;font-weight:bold">{{pageName}}</span>
             <span style="color:#999;font-size: 20px;" v-if="this.$route.query.hide">{{pageNumber}}</span>
             <span style="color:#999" v-if="!this.$route.query.hide">{{pageNumber}}</span>
+            <i class="el-icon-search" style="font-size:20px;background-color:#777777;color:#ffffff;margin-left:5px" @click="showSearch" v-if='(this.pageName == "交易  " && this.pageNumber == "") || (this.pageName == "Transactions  "&& this.pageNumber == "") '></i>
           </div>
           <el-breadcrumb separator="/" style="height:50px;line-height:50px;">
             <el-breadcrumb-item v-for="item in crumbsList" :key="item.path" v-if="item.meta.title">
@@ -220,7 +221,8 @@
         <!-- <div class="crumbs-content"> -->
         <div>
           <p style="color: #777;font-size: 20px;margin-top: 8px;">{{pageName}}</p>
-          <p style="color:#999" class="over">{{pageNumber}}</p>
+          <p style="color:#999" class="over">{{pageNumber}}</p> 
+          <i class="el-icon-search" style="font-size:20px;background-color:#ADD8E6;color:#ffffff;margin-left:5px" @click="showSearch" v-if='(this.pageName == "交易  " && this.pageNumber == "") || (this.pageName == "Transactions  "&& this.pageNumber == "") '></i>
         </div>
         <el-breadcrumb separator="/" style="height:50px;line-height:50px;">
           <el-breadcrumb-item v-for="(item,index) in crumbsList" :key="item.path" v-if="item.meta.title">
@@ -234,7 +236,7 @@
 </template>
 <script>
 import axios from "axios";
- import Bus from '@/bus.js'
+import Bus from '@/bus.js'
 export default {
   data() {
     return {
@@ -250,7 +252,8 @@ export default {
       search: "",
       lang:'cn',
       routerName:'',
-      imgSrc:require("../assets/logo.png")
+      imgSrc:require("../assets/logo.png"),
+      searchStatus:false
     };
   },
   created() {
@@ -275,6 +278,10 @@ export default {
     });
   },
   methods: {
+    showSearch(){
+      Bus.$emit('changeSearch', !this.searchStatus)
+      this.searchStatus = !this.searchStatus
+    },
     // 退出登录
     outLogin(){
       let msg;

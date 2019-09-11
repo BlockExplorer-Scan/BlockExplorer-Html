@@ -1,4 +1,5 @@
-export function timeSelect(){
+import i18n from '../i18n/i18n'
+export function timeSelect(callback,fallback){
     // 初始化时间
     const now = new Date();
     const nowYear = now.getFullYear();
@@ -7,7 +8,7 @@ export function timeSelect(){
     // 数据初始化
     function formatYear (nowYear) {
         let arr = [];
-        for (let i = nowYear - 5; i <= nowYear + 5; i++) {
+        for (let i = nowYear - 1; i <= nowYear + 1; i++) {
             arr.push({
                 id: i + '',
                 value: i + '年'
@@ -19,7 +20,7 @@ export function timeSelect(){
         let arr = [];
         for (let i = 1; i <= 12; i++) {
             arr.push({
-                id: i + '',
+                id: i.length < 2 ? i + '' : i,
                 value: i + '月'
             });
         }
@@ -93,17 +94,22 @@ export function timeSelect(){
     let iosSelect = new IosSelect(6, 
         [yearData, monthData, dateData, hourData, minuteData, secondsData],
         {
-            title: '时间选择',
+            title: 'Date selection',
             itemHeight: 35,
-            itemShowCount: 9,
-            // oneLevelId: oneLevelId,
-            // twoLevelId: twoLevelId,
-            // threeLevelId: threeLevelId,
+            itemShowCount: 6,
+            oneLevelId: nowYear,
+            twoLevelId: nowMonth,
+            threeLevelId: nowDate,
             // fourLevelId: fourLevelId,
             // fiveLevelId: fiveLevelId,
             // sixLevelId: sixLevelId,
             callback: function (selectOneObj, selectTwoObj, selectThreeObj, selectFourObj, selectFiveObj, selectSixObj) {
                 console.log(selectOneObj.value + ' ' + selectTwoObj.value + ' ' + selectThreeObj.value + ' ' + selectFourObj.value + ' ' + selectFiveObj.value + ' ' + selectSixObj.value);
+                callback(selectOneObj.id + '/' + selectTwoObj.id + '/' + selectThreeObj.id + ' ' + selectFourObj.id + ':' + selectFiveObj.id + ':' + selectSixObj.id);
+               
+            },
+            fallback:function(){
+                fallback()
             }
     });
     

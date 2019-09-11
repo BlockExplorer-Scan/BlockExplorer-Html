@@ -139,6 +139,18 @@ const cn = {
         "TIMEEND":"结束日期",
         "TIMETO":"至",
         "SEARCH":"搜索",
+        "rightFrom":"请输入正确的发送方",
+        "rightTo":"请输入正确的接收方",
+        "allPrice":"转账金额范围必须完整",
+        "rightPrice":"转账金额范围有误",
+        "needSearch":"至少需要一个搜索条件",
+        "failedContract":"创建合约",
+        "noMore10000":"查询数量不得超过一万条！",
+        "rightTime":"查询时间必须完整",
+        "goto":"前往",
+        "sure":"确定",
+        "prev":"上一頁",
+        "next":"下一頁"
     },
     ...zhLocale
 }

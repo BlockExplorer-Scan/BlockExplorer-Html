@@ -91,7 +91,7 @@
       </div> -->
     </div>
     <div class="section right-one">
-      <chart ref="simpleChart"/>
+      <chart ref="simpleChart" />
     </div>
     <div class="section">
       <blocks :blockdata="blockdata" :newData="newData" :unit="unit"/>
@@ -151,7 +151,6 @@ export default {
     EventUtil.addHandler(window, "offline", () =>{ 
          console.log("网络不给力，请检查网络设置!");
     });
-    // this.unit ='ava'
   },
   methods: {
     initWebSocket() {

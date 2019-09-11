@@ -93,7 +93,7 @@
     <el-tabs v-model="activeName" type="card">
       <el-tab-pane :label="tabTitle.Transfers" name="first">
         <Transfers :tokens="tokens"></Transfers>
-        <Pager @refreshList="getTokens" :pageCount="pageCount"></Pager>
+        <Pager @refreshList="getTokens" :pageCount="pageCount" :currentPage="transfersPage"></Pager>
       </el-tab-pane>
       <el-tab-pane :label="tabTitle.Holders" name="second" v-if="hasToken">
         <div class="hold-flex">
@@ -133,6 +133,7 @@ export default {
   components: { Transfers, Pager, Holders, pagingTwo },
   data() {
     return {
+      transfersPage:1,
       hasToken: sessionStorage.getItem("token"),
       tabTitle: {
         Transfers: "Transfers",
@@ -218,6 +219,7 @@ export default {
   },
   methods: {
     async getTokens(val) {
+      this.transfersPage = val ? val : this.transfersPage;
       let params2 = {
         contractAddress: this.address
       };

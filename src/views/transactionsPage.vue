@@ -1,6 +1,8 @@
 <template>
   <div class="wrap">
-    <Search type="transaciton" @getSearchData="changeTableData"></Search>
+     <transition name="el-fade-in">
+      <Search type="transaciton" @getSearchData="changeTableData" @errorMessage="shwoErroer" v-if="searchStatus"></Search>
+     </transition>
     <!-- <div class="flex-div">
       <el-input v-model="input" placeholder="From" clearable></el-input>
       <el-input v-model="input" placeholder="To" clearable></el-input>
@@ -17,7 +19,7 @@
     </div> -->
     <el-table
       :data="tableData"
-      style="margin:0 auto 30px;"
+      style="margin:5px auto 30px;"
       :header-cell-style="{color:'black',background:'#f9f9f9'}"
       size="mini"
       :row-style="{fontWeight:600}"
@@ -121,13 +123,18 @@
           :layout="layout"
           small
           background
-          prev-text="prev"
-          next-text="next"
+          :prev-text="$t('message.prev')"
+          :next-text="$t('message.next')"
         >
           <!-- <span style="margin:0 10px">Total:{{total}}</span> -->
         </el-pagination>
+         <span>{{$t('message.goto')}}</span>
+        <input v-model="inputPage" class="page-input" v-on:keyup.13="handleCurrentChange(inputPage)">
+        <!-- <el-button type="primary" size="mini" @click="handleCurrentChange(inputPage)">{{$t('message.sure')}}</el-button> -->
+        <button type="primary" size="mini" @click="handleCurrentChange(inputPage)" style="color:#fff;outline:none;border:none;background-color:#337ab7;line-height:20px;font-weight:bold;cursor:pointer">{{$t('message.sure')}}</button>
       </div>
     </div>
+    <div class="message-box" v-show="messageWord">{{messageWord}}</div>
   </div>
 </template>
 
@@ -139,6 +146,9 @@ export default {
   components:{Search},
   data() {
     return {
+      inputPage:'',
+      messageWord:'',
+      pageCount:"",
       input:'',
       value3:'',
       tableTitle: {
@@ -155,7 +165,7 @@ export default {
       pageStart: (parseInt(this.$route.query.page)-1) == 0 ? 0 : (parseInt(this.$route.query.page)-1)*20,
       pageNum: 20,
       pages: 1,
-      layout: "prev, next,jumper",
+      layout: "prev, next",
       pageSizes: [
         {
           value: 20,
@@ -176,20 +186,21 @@ export default {
       ],
       pageSize: 20,
       time1: 0,
-      searchData:{}
+      searchData:{},
+      searchStatus:false,//搜索显示隐藏
+      ifSearch:false//是否进入搜索
     };
   },
   created() {
-    console.log(999+JSON.stringify(this.$route.query.data) )
     let blockid = this.$route.query.blockid;
     if (blockid != null) {
       this.queryTransactionByValue(blockid);
     } else {
-      if(this.$route.query.ifSearch){
-        this.searchTableData(this.currentPage,this.pageStart,this.pageNum)
-      }else{
+      // if(this.$route.query.ifSearch){
+      //   this.searchTableData(this.currentPage,this.pageStart,this.pageNum)
+      // }else{
         this.querytransaction(this.pageStart, this.pageNum);
-      }
+      // }
     }
     var EventUtil = {
         addHandler: function (element, type, handler) {
@@ -237,6 +248,10 @@ export default {
     }
   },
   mounted() {
+    // this.inputPage = this.currentPage
+    Bus.$on("changeSearch",data=>{
+      this.searchStatus = data
+    })
     Bus.$on("language", data => {
       if (data == "cn") {
         this.tableTitle = {
@@ -246,7 +261,7 @@ export default {
           From: "发送方",
           To: "接收方",
           Value: "价值",
-        TxFee: "[交易费用]"
+          TxFee: "[交易费用]"
         };
       } else {
         this.tableTitle = {
@@ -262,10 +277,23 @@ export default {
     });
   },
   methods: {
+    // 获取搜索报错信息
+    shwoErroer(msg){
+      this.messageWord = msg
+      setTimeout(()=>{
+        this.messageWord = ''
+      },2000)
+    },
     // 搜索数据改变
     changeTableData(data){
       this.currentPage = 1
       this.searchData = data
+      if(this.searchData.transferStart ){
+        this.searchData.transferStart = this.searchData.transferStart*Math.pow(10, 18);
+      }
+      if(this.searchData.transferEnd ){
+        this.searchData.transferEnd = this.searchData.transferEnd*Math.pow(10, 18);
+      }
       // sessionStorage.setItem('rangeQueryOuterData',data)
       this.searchTableData(this.currentPage,this.pageStart,this.pageNum)
     },
@@ -274,14 +302,16 @@ export default {
       await this.getTime()
       this.searchData.pageStart = pageStart
       this.searchData.pageNum = pageNum
-      this.$router.push({ path:'/transtion/transactionsPage', query: { page: page,ifSearch:true,data:this.searchData }})
+      this.ifSearch = true
+      // this.$router.push({ path:'/transtion/transactionsPage', query: { page: page,ifSearch:true,data:this.searchData }})
+      this.$router.push({ path:'/transtion/transactionsPage', query: { page: page }})
       this.$fetch("/Conditional/rangeQueryOuter", 
         this.searchData
       ).then(response => {
         if (response.status == 200) {
-          this.tableData = response.data;
+          this.tableData = response.data[0];
           console.log(response.data)
-          for (let i = 0; i < response.data.length; i++) {
+          for (let i = 0; i < response.data[0].length; i++) {
             let newTime = this.tableData[i].timestamp;
             this.tableData[i].timestamp = this.$time(this.time1 - newTime);
             this.tableData[i].timestampUTC = this.$timestampToTimeUtc(newTime);
@@ -294,15 +324,32 @@ export default {
       // 修改展示数目 重置当前页
       this.pageNum = val;
       this.currentPage = 1;
-      this.$router.push({ path:'/transtion/transactionsPage', query: { page: this.currentPage }})
-      this.querytransaction(0, val);
+       this.inputPage = this.currentPage
+      if(this.ifSearch){
+        this.searchTableData(this.currentPage,this.pageStart,this.pageNum)
+      }else{
+        this.$router.push({ path:'/transtion/transactionsPage', query: { page: this.currentPage }})
+        this.querytransaction(0, val);
+      }
+
+      // this.$router.push({ path:'/transtion/transactionsPage', query: { page: this.currentPage }})
+      // this.querytransaction(0, val);
     },
     // 分页
     handleCurrentChange(val) {
+      if(!val){
+        return
+      }
+      val = parseInt(val)
+      if(val * this.pageNum > 10000){
+        this.$message.error(this.$t('message.noMore10000'));
+        return
+      }
+      this.currentPage = val
       let that = this;
       let pageNum = this.pageNum;
       let pageStart = (val - 1) * pageNum ;
-      if(this.$route.query.ifSearch){
+      if(this.ifSearch){
         this.searchTableData(val,pageStart, pageNum)
       }else{
         this.$router.push({ path:'/transtion/transactionsPage', query: { page: this.currentPage }})
@@ -370,6 +417,36 @@ export default {
 };
 </script>
 <style scoped>
+.el-button--primary{
+  background-color: #337ab7 !important;
+  /* line-height: 22px;
+  height: 22px; */
+}
+.page-input{
+  height: 22px;
+  padding: 0 3px;
+  border: 1px solid #dcdfe6;
+  color: #602666;
+  outline: 0;
+  text-align: center;
+  margin: 0 5px;
+  border-radius:4px;
+  width: 50px;
+}
+.message-box{
+  position: fixed;
+  width: 500px;
+  top:50%;
+  right: 0;
+  left: 0;
+  margin:0 auto;
+  height: 40px;
+  line-height: 40px;
+  background-color: #fef0f0;
+  color: red;
+  z-index: 500;
+  text-align: center
+}
 .flex-div{
   display: flex;
   flex-wrap: wrap;
@@ -418,7 +495,7 @@ export default {
   -moz-text-overflow: ellipsis;
 }
 .el-select {
-  width: 60px;
+  width: 70px;
   margin: 0 5px;
 }
 .pager {
@@ -432,5 +509,10 @@ export default {
 .el-table__footer-wrapper,
 .el-table__header-wrapper {
   width: auto;
+}
+@media screen and (max-width: 414px) {
+  .message-box{
+    width: 100%;
+  }
 }
 </style>

@@ -108,11 +108,15 @@
           :layout="layout"
           small
           background
-          prev-text="prev"
-          next-text="next"
+          :prev-text="$t('message.prev')"
+          :next-text="$t('message.next')"
         >
           <span style="font-size:14px;margin:0 10px">{{$t('message.Currentpage')}}: {{currentPage}}</span>
         </el-pagination>
+        <span>{{$t('message.goto')}}</span>
+        <input v-model="inputPage" class="page-input" v-on:keyup.13="handleCurrentChange(inputPage)">
+        <!-- <el-button type="primary" size="mini" @click="handleCurrentChange(inputPage)">{{$t('message.sure')}}</el-button> -->
+        <button type="primary" size="mini" @click="handleCurrentChange(inputPage)" style="color:#fff;outline:none;border:none;background-color:#337ab7;line-height:20px;font-weight:bold;cursor:pointer">{{$t('message.sure')}}</button>
       </div>
     </div>
   </div>
@@ -123,6 +127,7 @@ import Bus from "@/bus.js";
 export default {
   data() {
     return {
+      inputPage:'',
       tableTitle: {
         Height: "Height",
         Age: "Age",
@@ -144,7 +149,7 @@ export default {
       pages: 1,
       total: 0,
       height: "40",
-      layout: " slot,prev, next,jumper",
+      layout: " slot,prev, next",
       time1: 0,
       pageSizes: [
         {
@@ -235,6 +240,7 @@ export default {
       // 修改展示数目 重置当前页
       this.pageNum = val;
       this.currentPage = 1;
+      this.inputPage = this.currentPage
       this.$router.push({
         path: "/block/blocksPage",
         query: { page: this.currentPage }
@@ -243,6 +249,15 @@ export default {
     },
     // 分页
     handleCurrentChange(val) {
+      if(!val){
+        return
+      }
+      val = parseInt(val)
+      if(val * this.pageNum > 10000){
+        this.$message.error(this.$t('message.noMore10000'));
+        return
+      }
+      this.currentPage = val
       let pageNum = this.pageNum;
       let pageStart = (val - 1) * pageNum ;
       this.$router.push({
@@ -297,7 +312,7 @@ export default {
     }
   },
   mounted() {
-    // console.log(typeof this.$route.params.page)
+    // this.inputPage = this.currentPage
     Bus.$on("language", data => {
       if (data == "cn") {
         this.tableTitle = {
@@ -330,6 +345,22 @@ export default {
 };
 </script>
 <style scoped>
+.el-button--primary{
+  background-color: #337ab7 !important;
+  /* line-height: 22px;
+  height: 22px; */
+}
+.page-input{
+  height: 22px;
+  padding: 0 3px;
+  border: 1px solid #dcdfe6;
+  color: #602666;
+  outline: 0;
+  text-align: center;
+  margin: 0 5px;
+  border-radius:4px;
+  width: 50px;
+}
 .name-wrapper {
   width: 100%;
   cursor: pointer;
@@ -350,7 +381,7 @@ export default {
   width: auto;
 }
 .el-select {
-  width: 60px;
+  width: 70px;
   margin: 0 5px;
 }
 .pager {

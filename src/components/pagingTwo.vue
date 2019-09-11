@@ -22,12 +22,16 @@
           :layout="layout"
           small
           background
-          prev-text="Prev"
-          next-text="Next"
+          :prev-text="$t('message.prev')"
+          :next-text="$t('message.next')"
           :page-count='pageCount'
         >
           <!-- <span style="margin:0 10px">Total:{{total}}</span> -->
         </el-pagination>
+        <span>{{$t('message.goto')}}</span>
+        <input v-model="inputPage" class="page-input" v-on:keyup.13="handleCurrentChange(inputPage)">
+        <!-- <el-button type="primary" size="mini" @click="handleCurrentChange(inputPage)">{{$t('message.sure')}}</el-button> -->
+        <button type="primary" size="mini" @click="handleCurrentChange(inputPage)" style="color:#fff;outline:none;border:none;background-color:#337ab7;line-height:20px;font-weight:bold;cursor:pointer">{{$t('message.sure')}}</button>
       </div>
     </div>
   </div>
@@ -38,7 +42,8 @@ export default {
   props:['pageCount','currentPage'],
   data() {
     return {
-      layout: "prev, next,jumper",
+      inputPage:'',
+      layout: "prev, next",
       pageSizes: [
         {
           value: 20,
@@ -62,25 +67,27 @@ export default {
       selfPage:this.currentPage
     };
   },
-  // watch:{
-  //     currentPage:function(val){
-  //        console.log('===='+val)
-  //        this.selfPage = val
-  //     }
-  // },
+  watch:{
+      currentPage:function(val){
+         console.log('===='+val)
+         this.selfPage = val
+        //  this.inputPage = val
+      }
+  },
   methods: {
     //   页面显示数据条数
     // handleSizeChange() {
     //     this.$emit('refreshList',this.pageSize)
     // },
     //   分页
-    handleCurrentChange() {
-      this.$emit("refreshList",this.selfPage);
+    handleCurrentChange(val) {
+      // this.selfPage = this.inputPage ? parseInt(this.inputPage) : this.selfPage
+      this.$emit("refreshList",val);
     }
   },
-  // mounted(){
-  //   console.log('================='+this.pageCount)
-  // }
+  mounted(){
+    console.log('================='+this.pageCount)
+  }
 };
 </script>
 
@@ -93,5 +100,27 @@ export default {
   display: flex;
   align-items: center
 }
-
+.page-input{
+  height: 22px;
+  padding: 0 3px;
+  border: 1px solid #dcdfe6;
+  color: #602666;
+  outline: 0;
+  text-align: center;
+  margin: 0 5px;
+  border-radius:4px;
+  width: 50px;
+}
+.el-button--primary{
+  background-color: #337ab7 !important;
+  /* line-height: 22px;
+  height: 22px; */
+}
+</style>
+<style >
+/* .el-button--primary{
+  background-color: #337ab7 !important;
+  line-height: 22px;
+  height: 22px;
+} */
 </style>

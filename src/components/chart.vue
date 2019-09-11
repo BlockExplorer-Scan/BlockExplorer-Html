@@ -12,13 +12,15 @@ HighchartsDrilldown(Highcharts);
 
 export default {
   name: "highcharts",
+  // props:["unit"],
   data() {
     return {
+      unit:'',
       chart: null,
       newdata: [],
       options: {
         title: {
-          text: "AVA Transaction History in 14 days"
+          text: this.unit+" Transaction History in 14 days"
         },
         xAxis: {
           categories: []
@@ -59,21 +61,32 @@ export default {
     Bus.$on("language", data => {
       this.newdata=[]
       if (data == "en") {
-        this.options.title.text = " AVA Transaction History in 14 days";
+        this.options.title.text = this.unit+" Transaction History in 14 days";
       } else {
-        this.options.title.text = "AVA14天内的交易歷史";
+        this.options.title.text = this.unit+"14天内的交易歷史";
       }
       this.initChart();
     });
   },
   methods: {
-    initChart() {
+    async getUnit(){
+      let res = await this.$fetch("/Socket/getMainCoinName");
+      this.unit = res.data;
+      //  this.$fetch("/Socket/getMainCoinName").then(response => {
+      //   if (response.status == 200) {
+      //    this.unit = response.data
+      //   }
+      // });
+    },
+    async initChart() {
+      await this.getUnit()
+      console.log(this.unit+999999999999)
       let name = ''
       if (this.$i18n.locale == 'en') {
-        this.options.title.text = " AVA Transaction History in 14 days";
+        this.options.title.text = this.unit+ " Transaction History in 14 days";
         name = 'Trading value'
       } else {
-        this.options.title.text = "AVA14天内的交易歷史";
+        this.options.title.text = this.unit+ "14天内的交易歷史";
         name = '交易量'
       }
       this.chart = new Highcharts.Chart(this.$el, this.options);

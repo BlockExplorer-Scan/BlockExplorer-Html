@@ -86,7 +86,7 @@
               <p class="text-left">{{$t('message.BlockReward')}}:</p>
               <!-- <p class="text-right">'3ETH+'+{{detailItem.size}}</p> -->
               <p class="text-right">
-                {{parseFloat(detailItem.blockReward)+detailItem.gasUsed/Math.pow(10,18)}} {{detailItem.maincoinName}}&nbsp;&nbsp;(3&nbsp;{{detailItem.maincoinName}}+{{detailItem.gasUsed/Math.pow(10,18)}})</p>
+                {{parseFloat(detailItem.blockReward)+detailItem.gasUsed/Math.pow(10,18)}} {{detailItem.maincoinName}}&nbsp;&nbsp;({{parseFloat(detailItem.blockReward)+detailItem.gasUsed/Math.pow(10,18)}}&nbsp;{{detailItem.maincoinName}}+{{detailItem.gasUsed/Math.pow(10,18)}})</p>
             </li>
             <li class="li-border">
               <p class="text-left">{{$t('message.UnclesReward')}}:</p>

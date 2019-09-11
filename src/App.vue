@@ -17,6 +17,9 @@ export default {
 </script>
 
 <style lang="scss" >
+.el-message--error .el-message{
+  top:50%;
+}
 html * {
   font-size: 13px;
 }

@@ -22,12 +22,16 @@
           :layout="layout"
           small
           background
-          prev-text="Prev"
-          next-text="Next"
+          :prev-text="$t('message.prev')"
+          :next-text="$t('message.next')"
           :page-count='pageCount'
         >
           <!-- <span style="margin:0 10px">Total:{{total}}</span> -->
         </el-pagination>
+        <span>{{$t('message.goto')}}</span>
+        <input v-model="inputPage" class="page-input" v-on:keyup.13="handleCurrentChange(inputPage)">
+        <!-- <el-button type="primary" size="mini" @click="handleCurrentChange(inputPage)">{{$t('message.sure')}}</el-button> -->
+        <button type="primary" size="mini" @click="handleCurrentChange(inputPage)" style="color:#fff;outline:none;border:none;background-color:#337ab7;line-height:20px;font-weight:bold;cursor:pointer">{{$t('message.sure')}}</button>
       </div>
     </div>
   </div>
@@ -35,10 +39,11 @@
 
 <script>
 export default {
-  props:['pageCount'],
+  props:['pageCount','currentPage'],
   data() {
     return {
-      layout: "prev, next,jumper",
+      inputPage:'',
+      layout: "prev, next",
       pageSizes: [
         {
           value: 20,
@@ -58,7 +63,8 @@ export default {
         }
       ],
       pageSize: 20,
-      currentPage: 1,
+      // currentPage: 1,
+      selfPage:this.currentPage
     };
   },
   watch:{
@@ -73,17 +79,36 @@ export default {
     //     this.$emit('refreshList',this.pageSize)
     // },
     //   分页
-    handleCurrentChange() {
-      this.$emit("refreshList",this.currentPage);
+    handleCurrentChange(val) {
+      console.log(val)
+      this.$emit("refreshList",val);
+      // this.currentPage = parseInt(this.inputPage)
     }
   },
   mounted(){
+    //  this.inputPage = this.currentPage
     // console.log('================='+this.pageCount)
   }
 };
 </script>
 
 <style scoped>
+.el-button--primary{
+  background-color: #337ab7 !important;
+  /* line-height: 22px;
+  height: 22px; */
+}
+.page-input{
+  height: 22px;
+  padding: 0 3px;
+  border: 1px solid #dcdfe6;
+  color: #602666;
+  outline: 0;
+  text-align: center;
+  margin: 0 5px;
+  border-radius:4px;
+  width: 50px;
+}
 .el-select {
   width: 60px;
   margin: 0 5px;
@@ -93,4 +118,11 @@ export default {
   align-items: center
 }
 
+</style>
+<style >
+/* .el-button--primary{
+  background-color: #337ab7 !important;
+  line-height: 22px;
+  height: 22px;
+} */
 </style>

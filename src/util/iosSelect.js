@@ -1223,8 +1223,8 @@
 		},
 		initLayer: function () {
 			var self = this;
-			var sureText = this.options.sureText || '确定';
-			var closeText = this.options.closeText || '取消';
+			var sureText = this.options.sureText || 'confirm';
+			var closeText = this.options.closeText || 'cancel';
 			var headerHeightCss = this.options.headerHeight + this.options.cssUnit;
 			var all_html = [
 				'<header style="height: ' + headerHeightCss + '; line-height: ' + headerHeightCss + '" class="iosselect-header">',
