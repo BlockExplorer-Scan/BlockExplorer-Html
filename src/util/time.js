@@ -66,7 +66,7 @@ export function timeSelect(callback,fallback){
         for (let i = 0,len = 24; i < len; i++) {
             hours.push({
                 id: i,
-                value: i + '时'
+                value: i + '時'
             });
         }
         callback(hours);

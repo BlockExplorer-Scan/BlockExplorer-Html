@@ -18,7 +18,7 @@
         <span style="font-size:14px;font-weight:600">{{$t('message.Currentpage')}}: {{currentPage}}</span>
         <el-pagination
           @current-change="handleCurrentChange"
-          :current-page.sync="currentPage"
+          :current-page.sync="selfPage"
           :layout="layout"
           small
           background
@@ -81,6 +81,7 @@ export default {
     //   分页
     handleCurrentChange(val) {
       console.log(val)
+      val= parseInt(val)
       this.$emit("refreshList",val);
       // this.currentPage = parseInt(this.inputPage)
     }

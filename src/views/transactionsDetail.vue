@@ -27,12 +27,12 @@
               <p class="text-left">{{$t('message.TimeStamp')}}:</p>
               <p class="text-right" v-if="detailItem.length != 0">
                 <span v-if="detailItem.timestamp[0] > 0">
-                  {{detailItem.timestamp[0]}} days
-                  {{detailItem.timestamp[1]}} hours
+                  {{detailItem.timestamp[0]}} {{$t('message.days')}}
+                  {{detailItem.timestamp[1]}} {{$t('message.hours')}}
                 </span>
-                <span v-else-if="detailItem.timestamp[1] > 0">{{detailItem.timestamp[1]}} hours </span>
-                <span v-if="detailItem.timestamp[2] > 0">{{detailItem.timestamp[2]}} mins </span>
-                <span>{{detailItem.timestamp[3]}} secs ago</span>
+                <span v-else-if="detailItem.timestamp[1] > 0">{{detailItem.timestamp[1]}} {{$t('message.hours')}} </span>
+                <span v-if="detailItem.timestamp[2] > 0">{{detailItem.timestamp[2]}} {{$t('message.mins')}} </span>
+                <span>{{detailItem.timestamp[3]}} {{$t('message.secsAgo')}}</span>
                 <span>({{detailItem.timestampUTC}})</span>
               </p>
             </li>
@@ -173,11 +173,10 @@
           </div>
         </div>
       </el-tab-pane>
-      <el-tab-pane
-        
-      >
-      <span slot="label">{{$t('message.Comments')}}</span>
-      Make sure to use the "Vote Down" button for any spammy posts, and the "Vote Up" for interesting conversations.</el-tab-pane>
+      <!-- <el-tab-pane>
+        <span slot="label">{{$t('message.Comments')}}</span>
+        Make sure to use the "Vote Down" button for any spammy posts, and the "Vote Up" for interesting conversations.
+      </el-tab-pane> -->
     </el-tabs>
   </div>
 </template>
@@ -271,7 +270,8 @@ export default {
           } else {
             this.detailItem = response.data[0];
             let newTime = this.detailItem.timestamp;
-            this.detailItem.timestampUTC = this.$timestampToTimeUtc(newTime);
+            this.detailItem.timestampUTC = this.$timestampToTime(newTime)+ ' UTC';
+            // this.detailItem.timestampUTC = this.$timestampToTimeUtc(newTime);
             this.detailItem.timestamp = this.$time(this.time1 - newTime);
           }
         }
@@ -323,6 +323,7 @@ export default {
       });
     },
     jumpTo(index, type) {
+     
       this.$router.push({
         name: "address",
         params: { blockid: index },

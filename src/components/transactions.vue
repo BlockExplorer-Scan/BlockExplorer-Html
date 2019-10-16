@@ -2,7 +2,7 @@
   <div class="transtions-wrap">
     <div class="block-title">
       <h1>
-        <i class="fa fa-list-alt" id="faalt"></i> {{$t('message.Transactions')}}
+        <i class="fa fa-list-alt" id="faalt"></i>&nbsp;&nbsp;{{$t('message.newestTransactions')}}
       </h1>
       <router-link :to="{path:'/transtion/transactionsPage',query: { page: 1 }}" class="view-all-btn">{{$t('message.viewAll')}}</router-link>
     </div>
@@ -13,21 +13,23 @@
       >{{$t('message.NoData')}}</p>
       <transition-group tag="ul" name="fade" v-else>
         <li class="blocks-item" v-for="item in newTransactiondata" :key="item.hash">
-          <p style=""><i class="fa fa-hdd-o" id="faalt" style="font-size:20px"></i></p>
-          <div class="item-left">
-            <p @click="toDetail(item.hash,'hash')">
-              <span>TX#   </span><span class="jump ellipsis hash">{{item.hash}}</span>
-            </p>
-            <p>
-              {{$t('message.From')}}
-              <span @click="toDetail(item.from,'from')" class="jump ellipsis">{{item.from}}</span> {{$t('message.To')}}
-              <span @click="toDetail(item.to,'to')" class="jump ellipsis">{{item.to}}</span>
-            </p>
-            <p v-if="item.value || item.value == 0">Amount {{item.value/Math.pow(10, 18)}} {{unit}}</p>
-            <p v-if="item.valueStr">Amount {{item.valueStr/Math.pow(10, 18)}} {{unit}}</p>
+          <div style="display:flex">
+            <p style=""><i class="fa fa-hdd-o" id="faalt" style="font-size:20px"></i></p>
+            <div class="item-left">
+              <p @click="toDetail(item.hash,'hash')">
+                <span>TX#   </span><span class="jump ellipsis hash">{{item.hash}}</span>
+              </p>
+              <p>
+                {{$t('message.From')}}
+                <span @click="toDetail(item.from,'from')" class="jump ellipsis">{{item.from}}</span> {{$t('message.To')}}
+                <span @click="toDetail(item.to,'to')" class="jump ellipsis">{{item.to}}</span>
+              </p>
+              <p v-if="item.value || item.value == 0">{{$t('message.amount')}} {{item.value/Math.pow(10, 18)}} {{unit}}</p>
+              <p v-if="item.valueStr">{{$t('message.amount')}} {{item.valueStr/Math.pow(10, 18)}} {{unit}}</p>
+            </div>
           </div>
           <div class="item-right ellipsis">
-            <p class="ellipsis">
+            <p class="ellipsis m-time">
               <span v-if="item.timestamp[0] > 0">{{item.timestamp[0]}} {{$t('message.days')}} </span>
               <span v-if="item.timestamp[1] > 0">{{item.timestamp[1]}} {{$t('message.hours')}} </span>
               <span v-if="item.timestamp[2] > 0" >{{item.timestamp[2]}} {{$t('message.mins')}} </span>
@@ -120,12 +122,12 @@ export default {
       // 判断数据是否已经存在
       for (let i = 0; i < transactions.length; i++) {
         if (arr.indexOf(transactions[i].hash) == -1) {
-          if (transactiondata.length < 10) {
+          // if (transactiondata.length < 10) {
             transactiondata.unshift(transactions[i]);
-          } else {
-            transactiondata.unshift(transactions[i]);
-            transactiondata.pop();
-          }
+          // } else {
+          //   transactiondata.unshift(transactions[i]);
+          //   transactiondata.pop();
+          // }
         } else {
           console.log("transactiondata already exist data");
         }
@@ -230,12 +232,21 @@ p {
 .hash{
   max-width: 180px
 }
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 2s;
-}
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  opacity: 0;
+// .fade-enter-active,
+// .fade-leave-active {
+//   transition: opacity 2s;
+// }
+// .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+//   opacity: 0;
+// }
+@media screen and (max-width: 768px) {
+  .blocks-item{
+    flex-wrap: wrap
+  }
+  .m-time{
+    text-align: left;
+    margin-left: 15px
+  }
 }
 </style>
 

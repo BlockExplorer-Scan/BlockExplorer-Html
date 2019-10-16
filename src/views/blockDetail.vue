@@ -40,13 +40,11 @@
             </li>
             <li class="li-border">
               <p class="text-left">{{$t('message.ParentHash')}}:</p>
-              <p
-                class="text-right jump"
-                @click="jumpTo(detailItem.parentHash,'hash')"
-              >{{detailItem.parentHash}}</p>
+              <!-- <p class="text-right jump" @click="jumpTo(detailItem.parentHash,'hash')">{{detailItem.parentHash}}</p> -->
+              <p class="text-right jump" @click="toBlockDetails(detailItem.parentNumber)">{{detailItem.parentHash}}</p>
             </li>
             <li class="li-border">
-              <p class="text-left">{{$t('message.Sha3Uncles')}}:</p>
+              <p class="text-left">{{$t('message.UnclesHash')}}:</p>
               <p class="text-right">{{detailItem.sha3Uncles}}</p>
             </li>
             <li class="li-border">
@@ -99,7 +97,7 @@
           </ul>
         </div>
       </el-tab-pane>
-      <el-tab-pane label="Comments">Comments</el-tab-pane>
+      <!-- <el-tab-pane label="Comments">Comments</el-tab-pane> -->
     </el-tabs>
   </div>
 </template>
@@ -161,7 +159,9 @@ export default {
               this.detailItem = response.data[0];
               // 处理时间戳为时间差
               let newTime = this.detailItem.timestamp;
-              this.detailItem.timestampUTC = this.$timestampToTimeUtc(newTime);
+              this.detailItem.parentNumber = this.detailItem.number - 1
+              // this.detailItem.timestampUTC = this.$timestampToTimeUtc(newTime);
+              this.detailItem.timestampUTC = this.$timestampToTime(newTime) + ' (UTC)';
               this.detailItem.timestamp = this.$time(this.time1 - newTime);
             } else {
               this.loading = true;
@@ -182,6 +182,12 @@ export default {
         params: { blockid: blockid, type: target },
         query: { blockid: blockid }// 2019.8.14
       });
+    },
+    toBlockDetails(index){
+       this.$router.push({
+          name: "blockDetail",
+          params: { blockid: index }
+        });
     },
     jumpTo(number, type) {
       if (type == "hash") {

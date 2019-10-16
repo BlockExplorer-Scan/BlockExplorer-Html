@@ -34,7 +34,7 @@
       ></el-date-picker>
       </div>
       
-      <el-button type="primary" icon="el-icon-search" size="mini" @click="getData()">搜索</el-button>
+      <el-button type="primary" icon="el-icon-search" size="mini" @click="getData()">{{$t('message.SEARCH')}}</el-button>
     </div>
     <div class="border-div"></div>
     <!-- <span @click="showTime">点击这里选择银行</span>  -->

@@ -8,7 +8,7 @@
     <template slot="empty">
       <p>{{$t('message.NoData')}}</p>
     </template>
-    <el-table-column :label="tableTitle.TxHash" min-width="100" v-if="tableType == 'Transactions'">
+    <el-table-column :label="$t('message.TxHash')" min-width="100" v-if="tableType == 'Transactions'">
       <template slot-scope="scope">
         <div
           slot="reference"
@@ -17,14 +17,14 @@
         >{{scope.row.hash}}</div>
       </template>
     </el-table-column>
-    <el-table-column :label="tableTitle.TxHash" min-width="180" v-if="tableType == 'Erc20'">
+    <el-table-column :label="$t('message.TxHash')" min-width="180" v-if="tableType == 'Erc20'">
       <template slot-scope="scope">
         <div slot="reference" class="name-wrapper" style="" @click="$emit('detail',{val:scope.row.transactionHash,type:'hash'})">{{scope.row.transactionHash}}</div>
         <!-- @click="$emit('detail',{val:scope.row.blockHash,type:'hash'})" -->
       </template>
     </el-table-column>
     <el-table-column
-      :label="tableTitle.ParentTxHash"
+      :label="$t('message.ParentTxHash')"
       min-width="180"
       v-if="tableType == 'Internal'"
     >
@@ -36,7 +36,7 @@
         >{{scope.row.transactionHash}}</div>
       </template>
     </el-table-column>
-    <el-table-column :label="tableTitle.Block" min-width="80" v-if="tableType != 'Erc20'">
+    <el-table-column :label="$t('message.Block')" min-width="80" v-if="tableType != 'Erc20'">
       <template slot-scope="scope">
         <div
           slot="reference"
@@ -45,21 +45,21 @@
         >{{scope.row.blockNumber}}</div>
       </template>
     </el-table-column>
-    <el-table-column :label="tableTitle.Age" min-width="140">
+    <el-table-column :label="$t('message.Age')" min-width="140">
       <template slot-scope="scope">
         <!-- <div slot="reference">{{scope.row.timestamp || 0}}</div> -->
         <div class="time-wrapper">
           <span v-if="scope.row.timestamp[0] > 0">
-            {{scope.row.timestamp[0]}} days
-            {{scope.row.timestamp[1]}} hours
+            {{scope.row.timestamp[0]}} {{$t('message.days')}}
+            {{scope.row.timestamp[1]}} {{$t('message.hours')}}
           </span>
-          <span v-else-if="scope.row.timestamp[1] > 0">{{scope.row.timestamp[1]}} hours</span>
-          <span v-if="scope.row.timestamp[2] > 0">{{scope.row.timestamp[2]}} mins</span>
-          <span>{{scope.row.timestamp[3]}} secs ago</span>
+          <span v-else-if="scope.row.timestamp[1] > 0"> {{scope.row.timestamp[1]}} {{$t('message.hours')}}</span>
+          <span v-if="scope.row.timestamp[2] > 0"> {{scope.row.timestamp[2]}} {{$t('message.mins')}}</span>
+          <span> {{scope.row.timestamp[3]}} {{$t('message.secsAgo')}}</span>
         </div>
       </template>
     </el-table-column>
-    <el-table-column :label="tableTitle.From" min-width="140">
+    <el-table-column :label="$t('message.From')" min-width="140">
       <template slot-scope="scope">
         <span style="margin-left: 10px" v-if="scope.row.inOut">{{ scope.row.from }}</span>
         <div
@@ -72,7 +72,7 @@
     </el-table-column>
     <el-table-column v-if="tableType == 'Transactions' || tableType == 'Erc20'">
       <template slot-scope="scope">
-        <span class="statu" :class="{status : !scope.row.inOut}">{{ scope.row.status }}</span>
+        <span class="statu" :class="{status : !scope.row.inOut}">{{ scope.row.status == 'IN'? $t('message.InStatu') : $t('message.OutStatu') }}</span>
       </template>
     </el-table-column>
     <el-table-column v-if="tableType == 'Internal'">
@@ -82,7 +82,7 @@
         </span>
       </template>
     </el-table-column>
-    <el-table-column :label="tableTitle.To" min-width="140">
+    <el-table-column :label="$t('message.To')" min-width="140">
       <template slot-scope="scope">
         <span style="margin-left: 10px" v-if="!scope.row.inOut">{{ scope.row.to }}</span>
         <div
@@ -93,23 +93,23 @@
         >{{ scope.row.to }}</div>
       </template>
     </el-table-column>
-    <el-table-column :label="tableTitle.Value" min-width="80" v-if="!hideValue">
+    <el-table-column :label="$t('message.Value')" min-width="140" v-if="!hideValue">
+      <template slot-scope="scope">
+        <span style="margin-left: 10px">{{ scope.row.value/Math.pow(10, 18) || 0}}&nbsp;{{unit}}</span>
+      </template>
+    </el-table-column>
+      <el-table-column :label="$t('message.Quantity')" min-width="80" v-if="hideValue">
       <template slot-scope="scope">
         <span style="margin-left: 10px">{{ scope.row.value/Math.pow(10, 18) || 0}}</span>
       </template>
     </el-table-column>
-      <el-table-column :label="tableTitle.Quantity" min-width="80" v-if="hideValue">
-      <template slot-scope="scope">
-        <span style="margin-left: 10px">{{ scope.row.value/Math.pow(10, 18) || 0}}</span>
-      </template>
-    </el-table-column>
-    <el-table-column :label="tableTitle.TxFee" min-width="100" v-if="tableType == 'Transactions'">
+    <el-table-column :label="$t('message.TxFee')" min-width="100" v-if="tableType == 'Transactions'">
       <template slot-scope="scope">
         <!-- <span style="margin-left: 10px">{{ (scope.row.gasUsed || 0) | multiple}}</span> -->
         <span style="margin-left: 10px">{{ (scope.row.gasUsed*(scope.row.gasPrice/ Math.pow(10, 18))).toFixed(8)}}</span>
       </template>
     </el-table-column>
-    <el-table-column :label="tableTitle.Token" min-width="150" v-if="tableType == 'Erc20'">
+    <el-table-column :label="$t('message.Token')" min-width="150" v-if="tableType == 'Erc20'">
       <template slot-scope="scope">
         <div slot="reference" class="name-wrapper">{{scope.row.statusName || 0}}</div>
       </template>
@@ -152,7 +152,8 @@ export default {
         Token: "Token",
         TxFee:"TxFee",
         Quantity:"Quantity"
-      }
+      },
+      unit:''
     };
   },
   created() {
@@ -162,12 +163,12 @@ export default {
         TxHash: "交易哈希",
         Block: "區塊",
         ParentTxHash: "父哈希",
-        Age: "块龄",
-        From: "发送方",
+        Age: "塊齡",
+        From: "發送方",
         To: "接收方",
-        Value: "价值",
+        Value: "價值",
         Token: "令牌",
-        TxFee:"交易费用"
+        TxFee:"交易費用"
       };
     } else {
       this.tableTitle = {
@@ -185,18 +186,19 @@ export default {
     }
   },
   mounted() {
+    this.getUnit()
     Bus.$on("language", data => {
       if (data == "cn") {
         this.tableTitle = {
           TxHash: "交易哈希",
           Block: "區塊",
           ParentTxHash: "父哈希",
-          Age: "块龄",
-          From: "发送方",
+          Age: "塊齡",
+          From: "發送方",
           To: "接收方",
-          Value: "价值",
+          Value: "價值",
           Token: "令牌",
-        TxFee:"交易费用"
+          TxFee:"交易費用"
         };
       } else {
         this.tableTitle = {
@@ -208,12 +210,21 @@ export default {
           To: "To",
           Value: "value",
           Token: "Token",
-        TxFee:"TxFee"
+          TxFee:"TxFee"
         };
       }
     });
   },
-  methods: {}
+  methods: {
+    getUnit(){
+      
+       this.$fetch("/Socket/getMainCoinName").then(response => {
+        if (response.status == 200) {
+         this.unit = response.data
+        }
+      });
+    }
+  }
 };
 </script>
 <style lang="scss" scoped>

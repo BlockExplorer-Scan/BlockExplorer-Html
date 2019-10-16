@@ -63,7 +63,7 @@ export default {
       if (data == "en") {
         this.options.title.text = this.unit+" Transaction History in 14 days";
       } else {
-        this.options.title.text = this.unit+"14天内的交易歷史";
+        this.options.title.text = this.unit+" 14天内的交易歷史";
       }
       this.initChart();
     });
@@ -80,13 +80,12 @@ export default {
     },
     async initChart() {
       await this.getUnit()
-      console.log(this.unit+999999999999)
       let name = ''
       if (this.$i18n.locale == 'en') {
         this.options.title.text = this.unit+ " Transaction History in 14 days";
         name = 'Trading value'
       } else {
-        this.options.title.text = this.unit+ "14天内的交易歷史";
+        this.options.title.text = this.unit+ " 14天内的交易歷史";
         name = '交易量'
       }
       this.chart = new Highcharts.Chart(this.$el, this.options);
@@ -100,6 +99,7 @@ export default {
             newkey = `${newkey[1]}/${newkey[2]}`;
             _this.tip = series[key];
             series[key] = series[key];
+            console.log('------------'+series[key])
             _this.options.xAxis.categories.push(newkey);
             // _this.newdata.push(parseFloat((series[key] / 1000).toFixed(3)));
             _this.newdata.push(parseFloat(series[key]));

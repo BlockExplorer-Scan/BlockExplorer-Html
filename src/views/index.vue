@@ -55,7 +55,7 @@
         <img src="../assets/icon_block.png" style="vertical-align:middle;margin-right:20px">
         <span
           class="f30"
-          style="vertical-align:middle"
+          style="vertical-align:middle;font-size:18px"
         >BlockChain-Scan</span>
       </div>
       <div class="block-item">
@@ -69,12 +69,12 @@
         <div class="item text-right">
           <h1 @click="jumpTo('tran')" class="f14">{{$t('message.TRANSACTIONS')}}</h1>
           <h4 class="f20">
-            <span class="block-num" @click="jumpTo('tran')">{{tpsNum}} </span>
+            <span class="block-num" @click="jumpTo('tran')">{{tpsNum | thousandNumber}} </span>
             <!-- <span>({{tps}} TPS)</span> -->
           </h4>
         </div>
       </div>
-      <div style="height:75px"></div>
+      <div style="height:75px" class="m-div"></div>
       <!-- <div class="block-item">
         <div class="item text-left">
           <h1 class="f14">{{$t('message.HashRate')}}</h1>
@@ -111,6 +111,12 @@ export default {
     chart,
     blocks,
     transactions
+  },
+  filters:{
+    thousandNumber(number){
+      let reg=/\d{1,3}(?=(\d{3})+$)/g;   
+      return (number + '').replace(reg, '$&,');
+    }
   },
   data() {
     return {
@@ -364,13 +370,13 @@ h4 {
   margin-bottom: 21px;
 }
 .left-one-title {
-  margin-bottom: 45px;
+  margin-bottom: 10px;
   text-align: left;
 }
 .left-one {
   background-image: linear-gradient(-90deg, #3c4857 0%, #7591b5 100%);
   color: #ffffff;
-  padding: 35px 30px 11px;
+  padding: 25px 30px 11px;
   box-sizing: border-box;
 }
 h1,
@@ -392,6 +398,15 @@ h1,
 @media screen and (max-width: 768px) {
   .section {
     width: 100%;
+  }
+  .m-div{
+    display: none
+  }
+  .block-item{
+    margin-bottom: 0;
+  }
+  .left-one{
+    padding: 10px 30px 10px;
   }
 }
 </style>

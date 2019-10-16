@@ -18,7 +18,7 @@ export default new Router({
       component: () => import('./views/block.vue'),
       meta: {
         title: 'Blocks',
-        CNtitle: '区块'
+        CNtitle: '區塊'
       },
       redirect: { name: 'blocksPage' },
       children: [
@@ -33,7 +33,7 @@ export default new Router({
           component: () => import('./views/blockDetail.vue'),
           meta: {
             title: 'Block Information',
-            CNtitle: '区块信息'
+            CNtitle: '區塊信息'
           }
         },
       ]
@@ -117,6 +117,10 @@ export default new Router({
       path: '/login',
       name: 'login',
       component: () => import('./views/login.vue'),
+      meta: {
+        title: 'Login',
+        CNtitle: '登錄'
+      },
     },
     { path: '*', component: () => import('./views/NotFound.vue'), },
   ]

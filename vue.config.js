@@ -7,5 +7,5 @@ module.exports = {
         // host:'localhost',
         // port:8181,
         // https:false
-    }
+    },
 }

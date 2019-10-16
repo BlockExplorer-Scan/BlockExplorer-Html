@@ -4,7 +4,7 @@
       <h1>
         <transition name="rotate">
           <i class="fa fa-cubes"></i>
-        </transition>{{$t('message.blocks')}}
+        </transition>&nbsp;&nbsp;{{$t('message.newestBlocks')}}
       </h1>
       <router-link :to="{path:'/block/blocksPage',query: { page: 1 }}" class="view-all-btn">{{$t('message.viewAll')}}</router-link>
     </div>
@@ -85,12 +85,12 @@ export default {
       });
       // 判断数据是否已经存在
       if (arr.indexOf(newVal.block.number) == -1) {
-        if (blockdata.length < 10) {
+        // if (blockdata.length < 10) {
           blockdata.unshift(newVal.block);
-        } else {
-          blockdata.splice(0, 0, newVal.block);
-          blockdata.pop();
-        }
+        // } else {
+          // blockdata.splice(0, 0, newVal.block);
+          // blockdata.pop();
+        // }
       } else {
         console.log("blockdata already exist data");
       }
@@ -112,7 +112,13 @@ export default {
   },
   filters: {
     fixedFive(val) {
-      return (0.1 + val / Math.pow(10, 18)).toFixed(5);
+      val = (0.1 + val / Math.pow(10, 18)).toFixed(5);
+      if(val.toString().includes('0000')){
+          return val.toString().substring(0,3)
+        }else{
+          return val
+        }
+      // return (0.1 + val / Math.pow(10, 18)).toFixed(5);
     }
   }
 };
@@ -197,12 +203,12 @@ p {
   cursor: pointer;
   text-decoration: underline;
 }
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 2s;
-}
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  opacity: 0;
-}
+// .fade-enter-active,
+// .fade-leave-active {
+//   transition: opacity 0.5s;
+// }
+// .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+//   opacity: 0;
+// }
 </style>
 

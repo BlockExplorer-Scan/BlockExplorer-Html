@@ -178,12 +178,11 @@ export default {
          if(val.toString().includes('.00000')){
           return val.toString().substring(0,1)
         }else{
-           return val.toFixed(5)
+          return val.toFixed(5)
         }
       }else{
         return val
       }
-      
     }
   },
   created() {
@@ -211,25 +210,25 @@ export default {
       // alert(1212)
       this.tableTitle = {
         Height: "高度",
-        Age: "块龄",
+        Age: "塊齡",
         txn: "交易",
-        Uncles: "叔区块",
-        Miner: "矿工",
+        Uncles: "叔區塊",
+        Miner: "礦工",
         GasUsed: "燃料用量",
-        GasLimit: "燃料限制",
-        AvgGasPrice: "平均.燃料价值",
-        Reward: "奖励"
+        GasLimit: "燃料上限",
+        AvgGasPrice: "平均.燃料價值",
+        Reward: "獎勵"
       };
     } else {
       this.tableTitle = {
         Height: "Height",
         Age: "Age",
-        txn: "txn",
+        txn: "Txn",
         Uncles: "Uncles",
         Miner: "Miner",
-        GasUsed: "GasUsed",
-        GasLimit: "GasLimit",
-        AvgGasPrice: "Avg.GasPrice",
+        GasUsed: "Gas Used",
+        GasLimit: "Gas Limit",
+        AvgGasPrice: "Avg Gas Price",
         Reward: "Reward"
       };
     }
@@ -255,6 +254,7 @@ export default {
       val = parseInt(val)
       if(val * this.pageNum > 10000){
         this.$message.error(this.$t('message.noMore10000'));
+        this.currentPage =  this.currentPage-1
         return
       }
       this.currentPage = val
@@ -279,7 +279,8 @@ export default {
           for (let i = 0; i < response.data.length; i++) {
             let newTime = this.tableData[i].timestamp;
             this.tableData[i].timestamp = this.$time(this.time1 - newTime);
-            this.tableData[i].timestampUTC = this.$timestampToTimeUtc(newTime);
+            this.tableData[i].timestampUTC = this.changeTimeInBlcok(newTime);
+            // this.tableData[i].timestampUTC = this.$timestampToTimeUtc(newTime);
             this.tableData[i].Reward = parseFloat(this.tableData[i].blockReward)+this.tableData[i].gasUsed/Math.pow(10,18)
           }
         }
@@ -304,6 +305,27 @@ export default {
         });
       }
     },
+    changeTimeInBlcok(timestamp){
+      let date = new Date(timestamp * 1000);
+      let Y = date.getFullYear() + "-";
+      let M =
+          date.getMonth() + 1 < 10
+              ? "0" + (date.getMonth() + 1) + "-"
+              : date.getMonth() + 1 + "-";
+      let D =
+          date.getDate() < 10 ? "0" + date.getDate() + " " : date.getDate() + " ";
+      let h =
+          date.getHours() < 10
+              ? "0" + date.getHours() + ":"
+              : date.getHours() + ":";
+      let m =
+          date.getMinutes() < 10
+              ? "0" + date.getMinutes() + ":"
+              : date.getMinutes() + ":";
+      let s =
+          date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
+      return Y + M + D + h + m + s + ' (UTC)';
+    },
     getTime() {
       this.$fetch("/date").then(res => {
         console.log(res);
@@ -317,25 +339,25 @@ export default {
       if (data == "cn") {
         this.tableTitle = {
           Height: "高度",
-          Age: "块龄",
+          Age: "塊齡",
           txn: "交易",
-          Uncles: "叔区块",
-          Miner: "矿工",
+          Uncles: "叔區塊",
+          Miner: "礦工",
           GasUsed: "燃料用量",
-          GasLimit: "燃料限制",
-          AvgGasPrice: "平均.燃料价值",
-          Reward: "奖励"
+          GasLimit: "燃料上限",
+          AvgGasPrice: "平均.燃料價值",
+          Reward: "獎勵"
         };
       } else {
         this.tableTitle = {
           Height: "Height",
           Age: "Age",
-          txn: "txn",
+          txn: "Txn",
           Uncles: "Uncles",
           Miner: "Miner",
-          GasUsed: "GasUsed",
-          GasLimit: "GasLimit",
-          AvgGasPrice: "Avg.GasPrice",
+          GasUsed: "Gas Used",
+          GasLimit: "Gas Limit",
+          AvgGasPrice: "Avg Gas Price",
           Reward: "Reward"
         };
       }

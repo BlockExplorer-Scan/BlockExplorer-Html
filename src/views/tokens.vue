@@ -19,7 +19,8 @@
      
       <el-table-column min-width="100">
         <template slot="header" slot-scope="scope">
-          <router-link to tag="font">{{$t('message.Token')}}</router-link>
+          <!-- <router-link to tag="font">{{$t('message.Token')}}</router-link> -->
+          <div style="color:#000;font-weight:normal">{{$t('message.TokenAddress')}}</div>
         </template>
         <template slot-scope="scope">
           <div>
@@ -73,7 +74,7 @@
         </template>
       </el-table-column> -->
     </el-table>
-    <pager @refreshList="refreshTokens" :pageCount='pageCount'></pager>
+    <pager v-if="this.tableData.length >20" @refreshList="refreshTokens" :pageCount='pageCount' :currentPage="currentPage"></pager>
   </div>
 </template>
 
@@ -86,7 +87,8 @@ export default {
       tableData: [],
       pageNum: 20,
       pageCount: 0,
-      arrData:[]
+      arrData:[],
+      currentPage:1
     };
   },
   created() {
@@ -146,7 +148,8 @@ export default {
       });
     },
     refreshTokens(num){
-      // console.log('zheshi'+num)
+      console.log('zheshi'+num)
+      this.currentPage = num
       this.arrData =[]
       for(let i in this.tableData){
         if(i >= (num-1)*this.pageNum && i <num*this.pageNum){

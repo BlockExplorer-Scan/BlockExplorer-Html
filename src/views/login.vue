@@ -1,13 +1,13 @@
 <template>
   <div class="login-wrap">
     <div class="index-content">
-      <form action method="post" class="login-form">
+      <form action method="post" class="login-form" style="margin-top:50px">
         <div class="item item-h">
           <h1>{{$t('message.LoginToYourAccount')}}</h1>
-          <p>
+          <!-- <p>
             {{$t('message.Or')}}
             <span class="jump-text">{{$t('message.LoginToYourAccount')}}</span>
-          </p>
+          </p> -->
         </div>
         <div class="item" style="display:flex; justify-content:center">
           <i class="fa fa-user iconF"></i>
@@ -24,13 +24,13 @@
           <!-- <input type="submit" value="Login" class="login-btn"> -->
           <span class="login-btn" @click="login">{{$t('message.Login')}}</span>
         </div>
-        <div class="item item-f">
+        <!-- <div class="item item-f">
           <h1>{{$t('message.ForgotyourPassword')}} ?</h1>
           <p>
             {{$t('message.Noworries')}},
             <span class="jump-text">{{$t('message.Clickhere')}}</span>{{$t('message.toResetYourPassword')}} .
           </p>
-        </div>
+        </div> -->
       </form>
     </div>
   </div>

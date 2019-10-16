@@ -106,14 +106,14 @@
                 <el-dropdown-item command="a">
                   <input
                     style="width:290px;padding-left:10px"
-                    placeholder="Search for Token Name"
+                    :placeholder="$t('message.SearchForTokenName')"
                     v-model="searchWord"
                   />
                 </el-dropdown-item>
                 <el-dropdown-item command="a">
                   <p
                     style="background:rgba(231,234,243,.5);padding-left:10px;font-weight:bold"
-                  >>ERC-20 Tokens ({{tokenCount}})</p>
+                  >>ERC-20 {{$t('message.Tokens')}} ({{tokenCount}})</p>
                 </el-dropdown-item>
                 <el-dropdown-item
                   divided
@@ -159,7 +159,7 @@
                 >
                   <div class="select-container">
                     <div>
-                      <p class="top-color" style="font-weight:bold">Subtotal:</p>
+                      <p class="top-color" style="font-weight:bold">{{$t('message.Subtotal')}}:</p>
                     </div>
                     <div>
                       <p class="top-color">$0.00</p>
@@ -266,7 +266,7 @@
     <div style="position:relative">
       <i class="el-icon-search" style="text-align:centere;width:20px;height:20px;line-height:20px;position:absolute;right:10px;top:10px;z-index:999;font-size:20px;background-color:#777777;color:#ffffff;margin-left:5px" @click="showSearch" ></i>
       <el-tabs type="border-card">
-        <el-tab-pane :label="tabTitle.Transactions" v-if="!hideValue">
+        <el-tab-pane :label="$t('message.Transactions')" v-if="!hideValue">
           <transition name="el-fade-in">
             <Search
               @getSearchData="changeTableDataOne"
@@ -283,7 +283,7 @@
           />
           <iPaging @refreshList="refresTransactionList" :pageCount="TransactionsNum" :currentPage="tableOnePage" />
         </el-tab-pane>
-        <el-tab-pane :label="tabTitle.InternalTxns" v-if="!hideValue">
+        <el-tab-pane :label="$t('message.InternalTxns')" v-if="!hideValue">
           <transition name="el-fade-in">
             <Search
               @getSearchData="changeTableDataTwo"
@@ -295,7 +295,7 @@
           <itable :tableData="tableData2" :tableType="Internal" @detail="toDetail" />
           <iPaging @refreshList="refresMainCoinList" :pageCount="intNum" :currentPage="tableTwoPage"  />
         </el-tab-pane>
-        <el-tab-pane :label="tabTitle.Erc20TokenTxns">
+        <el-tab-pane :label="$t('message.Erc20TokenTxns')">
           <transition name="el-fade-in">
             <Search
               @getSearchData="changeTableDataThree"
@@ -329,6 +329,7 @@ export default {
   },
   data() {
     return {
+      contractStatus:false,
       tableOnePage:1,
       tableTwoPage:1,
       tableThreePage:1,
@@ -344,7 +345,7 @@ export default {
       tabTitle: {
         Transactions: "Transactions",
         InternalTxns: "Internal Txns",
-        Erc20TokenTxns: "Erc20 Token Txns",
+        Erc20TokenTxns: "ERC20 Token Txns",
         MinedBlocks: "Mined Blocks",
         MinedUncles: "Mined Uncles",
         Comments: "Comments"
@@ -378,7 +379,8 @@ export default {
       tokenNameArr: [], //代币所有信息
       tokenName: [], //只有代币名称
       realTokenName: "",
-      searchStatus: false
+      searchStatus: false,
+      searchData:{}
     };
   },
   filters: {
@@ -397,7 +399,7 @@ export default {
       this.blockid = this.$route.params.blockid;
       this.type = this.$route.query.type;
       this.hideValue = this.$route.query.hide ? this.$route.query.hide : false;
-      if (this.this.$route.query.pageStart) {
+      if (this.$route.query.pageStart) {
         //当处于搜索状态时
         if (this.SearchWho == "transaction") {
           this.searchTableDataOne(1, this.pageStart, this.pageNum);
@@ -446,16 +448,16 @@ export default {
       this.tabTitle = {
         Transactions: "交易",
         InternalTxns: "内部交易",
-        Erc20TokenTxns: "Erc20代幣交易",
-        MinedBlocks: "已挖区块",
-        MinedUncles: "已挖叔区块",
+        Erc20TokenTxns: "ERC20代幣交易",
+        MinedBlocks: "已挖區塊",
+        MinedUncles: "已挖叔區塊",
         Comments: "评论"
       };
     } else {
       this.tabTitle = {
         Transactions: "Transactions",
         InternalTxns: "Internal Txns",
-        Erc20TokenTxns: "Erc20 Token Txns",
+        Erc20TokenTxns: "ERC20 Token Txns",
         MinedBlocks: "Mined Blocks",
         MinedUncles: "Mined Uncles",
         Comments: "Comments"
@@ -493,16 +495,16 @@ export default {
         this.tabTitle = {
           Transactions: "交易",
           InternalTxns: "内部交易",
-          Erc20TokenTxns: "Erc20代幣交易",
-          MinedBlocks: "已挖区块",
-          MinedUncles: "已挖叔区块",
+          Erc20TokenTxns: "ERC20代幣交易",
+          MinedBlocks: "已挖區塊",
+          MinedUncles: "已挖叔區塊",
           Comments: "评论"
         };
       } else {
         this.tabTitle = {
           Transactions: "Transactions",
           InternalTxns: "Internal Txns",
-          Erc20TokenTxns: "Erc20 Token Txns",
+          Erc20TokenTxns: "ERC20 Token Txns",
           MinedBlocks: "Mined Blocks",
           MinedUncles: "Mined Uncles",
           Comments: "Comments"
@@ -536,6 +538,7 @@ export default {
       await this.getTime();
       this.searchData.pageStart = pageStart;
       this.searchData.pageNum = pageNum;
+      this.searchData.address = this.blockid;
       if (this.searchData.transferStart) {
         this.searchData.transferStart =
           this.searchData.transferStart * Math.pow(10, 18);
@@ -589,6 +592,16 @@ export default {
       this.ifSearch = true;
       this.SearchWho = "internal";
       this.searchData = data;
+      if (this.SearchWho == "internal" && this.searchData.transferStart) {
+        this.searchData.transferStart = this.changeIntPrice(
+          this.searchData.transferStart
+        );
+      }
+      if (this.SearchWho == "internal" && this.searchData.transferEnd) {
+        this.searchData.transferEnd = this.changeIntPrice(
+          this.searchData.transferEnd
+        );
+      }
       if (this.searchData.timeStart)
         this.searchData.timeStart = this.searchData.timeStart * 1000;
       if (this.searchData.timeEnd)
@@ -601,16 +614,17 @@ export default {
       await this.getTime();
       this.searchData.pageStart = pageStart;
       this.searchData.pageNum = pageNum;
-      if (this.SearchWho == "internal" && this.searchData.transferStart) {
-        this.searchData.transferStart = this.changepPrice(
-          this.searchData.transferStart
-        );
-      }
-      if (this.SearchWho == "internal" && this.searchData.transferEnd) {
-        this.searchData.transferEnd = this.changepPrice(
-          this.searchData.transferEnd
-        );
-      }
+      this.searchData.address = this.blockid;
+      // if (this.SearchWho == "internal" && this.searchData.transferStart) {
+      //   this.searchData.transferStart = this.changepPrice(
+      //     this.searchData.transferStart
+      //   );
+      // }
+      // if (this.SearchWho == "internal" && this.searchData.transferEnd) {
+      //   this.searchData.transferEnd = this.changepPrice(
+      //     this.searchData.transferEnd
+      //   );
+      // }
       console.log(this.searchData);
       Object.assign(this.urlQuery, this.searchData);
       console.log(
@@ -646,6 +660,16 @@ export default {
       this.ifSearch = true;
       this.SearchWho = "Erc20";
       this.searchData = data;
+       if (this.SearchWho == "Erc20" && this.searchData.transferStart) {
+        this.searchData.transferStart = this.changepPrice(
+          this.searchData.transferStart
+        );
+      }
+      if (this.SearchWho == "Erc20" && this.searchData.transferEnd) {
+        this.searchData.transferEnd = this.changepPrice(
+          this.searchData.transferEnd
+        );
+      }
       if (this.searchData.timeStart)
         this.searchData.timeStart = this.searchData.timeStart * 1000;
       if (this.searchData.timeEnd)
@@ -674,16 +698,17 @@ export default {
       await this.getTime();
       this.searchData.pageStart = pageStart;
       this.searchData.pageNum = pageNum;
-      if (this.SearchWho == "Erc20" && this.searchData.transferStart) {
-        this.searchData.transferStart = this.changepPrice(
-          this.searchData.transferStart
-        );
-      }
-      if (this.SearchWho == "Erc20" && this.searchData.transferEnd) {
-        this.searchData.transferEnd = this.changepPrice(
-          this.searchData.transferEnd
-        );
-      }
+      this.searchData.address = this.blockid;
+      // if (this.SearchWho == "Erc20" && this.searchData.transferStart) {
+      //   this.searchData.transferStart = this.changepPrice(
+      //     this.searchData.transferStart
+      //   );
+      // }
+      // if (this.SearchWho == "Erc20" && this.searchData.transferEnd) {
+      //   this.searchData.transferEnd = this.changepPrice(
+      //     this.searchData.transferEnd
+      //   );
+      // }
       Object.assign(this.urlQuery, this.searchData);
       console.log(
         "合并后的结果5555:------------" + JSON.stringify(this.urlQuery)
@@ -756,11 +781,19 @@ export default {
         this.queryMainCoin();
         this.queryERC20();
         this.queryTxsCounts();
-        this.$router.push({
-          name: "address",
-          params: { blockid: blockid },
-          query: { type: value.type }
-        });
+        // if(this.$route.query.ifContract){
+        //   this.$router.push({
+        //     name: "address",
+        //     params: { blockid: blockid },
+        //     query: { type: value.type,ifContract:true}
+        //   });
+        // }else{
+          this.$router.push({
+            name: "address",
+            params: { blockid: blockid },
+            query: { type: value.type }
+          });
+        // }
       }
       if (value.type == "blockNumber") {
         this.$router.push({
@@ -816,7 +849,7 @@ export default {
           this.tableData = response.data;
           if (response.data.length == 0 && this.fromOrTo) {
             this.fromOrTo = false;
-            this.queryTransactionByValue();
+            // this.queryTransactionByValue();
           } else {
             for (let i = 0; i < this.tableData.length; i++) {
               let newTime = this.tableData[i].timestamp;
@@ -927,6 +960,10 @@ export default {
       if(!val){
         return
       }
+      // if(this.tableData.length == 0){
+      //   this.$message.error(this.$t('message.NoMoreData'));
+      //   return
+      // }
       console.log(val)
       this.tableOnePage = val ? val : this.tableOnePage;
       if (this.ifSearch) {
@@ -942,6 +979,10 @@ export default {
       if(!val){
         return
       }
+      // if(this.tableData2.length == 0){
+      //   this.$message.error(this.$t('message.NoMoreData'));
+      //   return
+      // }
       this.tableTwoPage = val ? val : this.tableTwoPage;
       if (this.ifSearch) {
         let pageNum = this.pageNum;
@@ -957,6 +998,10 @@ export default {
       if(!val){
         return
       }
+      // if(this.tableData3.length == 0){
+      //   this.$message.error(this.$t('message.NoMoreData'));
+      //   return
+      // }
       this.tableThreePage = val ? val : this.tableThreePage;
       if (this.ifSearch) {
         let pageNum = this.pageNum;
@@ -976,6 +1021,8 @@ export default {
         this.txns = res.data.txns;
         this.value = res.data.value;
         this.maincoinName = res.data.maincoinName;
+        this.contractStatus = res.data.code === '0x' ? false : true //0x(false)为普通账户，其他(true)为合约账户
+        Bus.$emit('contractStatus', this.contractStatus)
       });
     },
     async getTime() {
@@ -1032,8 +1079,18 @@ export default {
     //   let tmp  = 4-hex.length;
     //   return '0x' + zero.substr(0,tmp) + hex;
     // }
-    // 内部交易搜索转账金额处理
+    // erc20交易搜索转账金额处理
     changepPrice(num) {
+      // return "0x" + (num * Math.pow(10, 18)).toString(16);
+      let a = '0x0000000000000000000000000000000000000000000000000000000000000000'
+      let realNumber = (num * Math.pow(10, 18)).toString(16)
+      // let realNumber = '0000'
+      let lengtn = realNumber.length
+      let b = a.substring(0,66-lengtn)
+      return b+realNumber
+    },
+    changeIntPrice(num) {
+      // return (num * Math.pow(10, 18)).toString(16);
       return "0x" + (num * Math.pow(10, 18)).toString(16);
     },
     getTokenName() {
@@ -1050,7 +1107,6 @@ export default {
           this.tokenNameArr.push(data);
           this.tokenName.push(name[element]);
         });
-        console.log("zhubi migncheng" + JSON.stringify(this.tokenNameArr));
       });
     }
   }
