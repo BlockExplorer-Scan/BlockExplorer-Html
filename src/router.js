@@ -91,7 +91,7 @@ export default new Router({
       component: () => import('./views/tokens.vue'),
       meta: {
         title: 'Token',
-        CNtitle: '令牌'
+        CNtitle: '代幣'
       }
     },
     {

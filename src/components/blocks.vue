@@ -44,11 +44,12 @@
 </template>
 <script>
 export default {
-  props: ["blockdata", "newData","unit"],
+  props: ["blockdata", "newData","unit","timeDifferent"],
   data() {
     return {
       mins: 0,
-      secs: 0
+      secs: 0,
+      // serveTime:Date.parse(new Date())/1000
     };
   },
   computed: {
@@ -61,16 +62,20 @@ export default {
     let _this = this;
     // 定时器 不删
     setInterval(function() {
+      // _this.getTime()
+      let realTime = Date.parse(new Date())/1000 + _this.timeDifferent
+      // _this.serveTime = Date.parse(new Date())/1000
       for (let i = 0; i < _this.newBlockData.length; i++) {
-        if(_this.newBlockData[i].timestamp[3] < 0){
-          _this.$set(_this.newBlockData[i].timestamp, 3, 0);
-        }
-        if (_this.newBlockData[i].timestamp[3] >= 59) {
-          _this.$set(_this.newBlockData[i].timestamp, 3, 0);
-          _this.$set(_this.newBlockData[i].timestamp, 2, _this.newBlockData[i].timestamp[2] + 1);
-        } else {
-          _this.$set(_this.newBlockData[i].timestamp, 3, _this.newBlockData[i].timestamp[3] + 1);
-        }
+        _this.newBlockData[i].timestamp = _this.$time(realTime - _this.newBlockData[i].mytime)
+      //   if(_this.newBlockData[i].timestamp[3] < 0){
+      //     _this.$set(_this.newBlockData[i].timestamp, 3, 0);
+      //   }
+      //   if (_this.newBlockData[i].timestamp[3] >= 59) {
+      //     _this.$set(_this.newBlockData[i].timestamp, 3, 0);
+      //     _this.$set(_this.newBlockData[i].timestamp, 2, _this.newBlockData[i].timestamp[2] + 1);
+      //   } else {
+      //     _this.$set(_this.newBlockData[i].timestamp, 3, _this.newBlockData[i].timestamp[3] + 1);
+      //   }
       }
     }, 1000);
   },
@@ -92,11 +97,15 @@ export default {
           // blockdata.pop();
         // }
       } else {
-        console.log("blockdata already exist data");
+        // console.log("blockdata already exist data");
       }
     }
   },
   methods: {
+    async getTime() {
+      let { data } = await this.$fetch("/date");
+      this.serveTime = data;
+    },
     toDetail(value, target) {
       let name = '';
       let blockid = value;

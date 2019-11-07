@@ -48,7 +48,8 @@
     <el-table-column :label="$t('message.Age')" min-width="140">
       <template slot-scope="scope">
         <!-- <div slot="reference">{{scope.row.timestamp || 0}}</div> -->
-        <div class="time-wrapper">
+        <div v-if="showTime" @click="changeTime" class="time-wrapper">{{scope.row.timestampUTC}}</div>
+        <div class="time-wrapper" v-else @click="changeTime">
           <span v-if="scope.row.timestamp[0] > 0">
             {{scope.row.timestamp[0]}} {{$t('message.days')}}
             {{scope.row.timestamp[1]}} {{$t('message.hours')}}
@@ -120,6 +121,7 @@
 import Bus from "@/bus.js";
 export default {
   props: {
+    showTime:false,
     tableData: {
       type: Array,
       default() {
@@ -159,7 +161,7 @@ export default {
   created() {
     if (this.$i18n.locale == "cn") {
       this.tableTitle = {
-        Quantity:"数量",
+        Quantity:"數量",
         TxHash: "交易哈希",
         Block: "區塊",
         ParentTxHash: "父哈希",
@@ -167,7 +169,7 @@ export default {
         From: "發送方",
         To: "接收方",
         Value: "價值",
-        Token: "令牌",
+        Token: "代幣",
         TxFee:"交易費用"
       };
     } else {
@@ -197,7 +199,7 @@ export default {
           From: "發送方",
           To: "接收方",
           Value: "價值",
-          Token: "令牌",
+          Token: "代幣",
           TxFee:"交易費用"
         };
       } else {
@@ -216,6 +218,10 @@ export default {
     });
   },
   methods: {
+    // 改变块龄age显示
+    changeTime(){
+      this.showTime = !this.showTime
+    },
     getUnit(){
       
        this.$fetch("/Socket/getMainCoinName").then(response => {

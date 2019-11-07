@@ -39,11 +39,14 @@ export default {
         credits: {
           enabled: false //不显示LOGO
         },
-        // tooltip: {
-        //   formatter: function() {
-        //     return `交易量:${this.series.data} k`;
-        //   }
-        // }
+        tooltip: {
+          formatter: function() {
+            let reg=/\d{1,3}(?=(\d{3})+$)/g;   
+            var tool = '<b>'+this.x+'</b><br/>'
+            tool += `${this.series.name}:${(this.y + '').replace(reg, '$&,')} `
+            return tool;
+          }
+        }
       }
     };
   },
@@ -91,7 +94,6 @@ export default {
       this.chart = new Highcharts.Chart(this.$el, this.options);
       let _this = this;
       this.$fetch("/query/transaction/counts").then(response => {
-        // console.log(response);
         if (response.status == 200) {
           let series = response.data[0];
           Object.keys(series).forEach(function(key) {
@@ -99,7 +101,7 @@ export default {
             newkey = `${newkey[1]}/${newkey[2]}`;
             _this.tip = series[key];
             series[key] = series[key];
-            console.log('------------'+series[key])
+            // console.log('------------'+series[key])
             _this.options.xAxis.categories.push(newkey);
             // _this.newdata.push(parseFloat((series[key] / 1000).toFixed(3)));
             _this.newdata.push(parseFloat(series[key]));
@@ -110,7 +112,6 @@ export default {
               _this.options.yAxis.tickPositions.push(arr[j]);
             }
           }
-          let nihao = 'laisla '
           _this.chart.addSeries({
             name: name,
             data: _this.newdata,

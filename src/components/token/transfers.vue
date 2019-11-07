@@ -24,7 +24,9 @@
       <el-table-column :label="tableTitle.Age" min-width="240">
         <template slot-scope="scope">
           <!-- <div slot="reference" class="color333 name-wrapper" v-if='scope.row.timestamp'> -->
-          <div class="color333 name-wrapper" slot="reference" v-if="scope.row.timestamp">
+          <div v-if="showTime" @click="changeTime">{{scope.row.timestampUTC}}</div>
+          <div class="color333 name-wrapper" slot="reference" v-else @click="changeTime">
+          <!-- <div class="color333 name-wrapper" slot="reference" v-if="scope.row.timestamp"> -->
             <span v-if="scope.row.timestamp[0] > 0">
               {{scope.row.timestamp[0]}} days
               {{scope.row.timestamp[1]}} hours
@@ -33,7 +35,7 @@
             <span v-if="scope.row.timestamp[2] > 0">{{scope.row.timestamp[2]}} mins</span>
             <span>{{scope.row.timestamp[3]}} secs ago</span>
           </div>
-          <div v-else>0</div>
+          <!-- <div v-else>0</div> -->
         </template>
       </el-table-column>
       <el-table-column :label="tableTitle.From" min-width="150" show-overflow-tooltip>
@@ -74,6 +76,7 @@ export default {
   created() {},
   data() {
     return {
+      showTime:false,
       tableData: [
         {
           date: "2016-05-02",
@@ -113,7 +116,7 @@ export default {
         Age: "块龄",
         From: "发送方",
         to: "接收方",
-        Quantity: "百分率"
+        Quantity: "數量"
       };
     } else {
       this.tableTitle = {
@@ -133,7 +136,7 @@ export default {
           Age: "块龄",
           From: "发送方",
           to: "接收方",
-          Quantity: "百分率"
+          Quantity: "數量"
         };
       } else {
         this.tableTitle = {
@@ -152,6 +155,10 @@ export default {
     }
   },
   methods: {
+    // 改变块龄age显示
+    changeTime(){
+      this.showTime = !this.showTime
+    },
     jump(val, type) {
       this.$router.push({
         name: "address",

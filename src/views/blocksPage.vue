@@ -12,7 +12,7 @@
       </template>
       <el-table-column :label="tableTitle.Height" min-width="80">
         <template slot-scope="scope">
-          <div
+          <div 
             slot="reference"
             class="name-wrapper"
             @click="toDetail(scope.row.number,'number')"
@@ -21,9 +21,10 @@
       </el-table-column>
       <el-table-column :label="tableTitle.Age" min-width="200">
         <template slot-scope="scope">
-          <el-popover trigger="hover" placement="top">
-            <p>{{scope.row.timestampUTC}}</p>
-            <div slot="reference">
+          <!-- <el-popover trigger="hover" placement="top"> -->
+            <div v-if="showTime" @click="changeTime">{{scope.row.timestampUTC}}</div>
+            <!-- <div slot="reference"> -->
+            <div v-else @click="changeTime">
               <span v-if="scope.row.timestamp[0] > 0">
                 {{scope.row.timestamp[0]}}  {{$t('message.days')}}
                 {{scope.row.timestamp[1]}}  {{$t('message.hours')}}
@@ -36,7 +37,8 @@
               >{{scope.row.timestamp[2]}}  {{$t('message.mins')}} </span>
               <span>{{scope.row.timestamp[3]}} {{$t('message.secsAgo')}}</span>
             </div>
-          </el-popover>
+            <!-- </div> -->
+          <!-- </el-popover> -->
         </template>
       </el-table-column>
       <el-table-column :label="tableTitle.txn" min-width="50">
@@ -127,6 +129,7 @@ import Bus from "@/bus.js";
 export default {
   data() {
     return {
+      showTime:false,
       inputPage:'',
       tableTitle: {
         Height: "Height",
@@ -234,6 +237,10 @@ export default {
     }
   },
   methods: {
+    // 改变块龄age显示
+    changeTime(){
+      this.showTime = !this.showTime
+    },
     // 每页展示数目
     handleSizeChange(val) {
       // 修改展示数目 重置当前页

@@ -58,7 +58,7 @@ export default {
       this.tableTitle = {
         rank: "排名",
         Address: "地址",
-        Quantity: "数量",
+        Quantity: "數量",
         Percentage: "百分率"
       };
     } else {
@@ -76,7 +76,7 @@ export default {
         this.tableTitle = {
           rank: "排名",
           Address: "地址",
-          Quantity: "数量",
+          Quantity: "數量",
           Percentage: "百分率"
         };
       } else {

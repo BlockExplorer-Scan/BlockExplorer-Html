@@ -552,11 +552,11 @@ export default {
       console.log(
         "合并后的结果5555:------------" + JSON.stringify(this.urlQuery)
       );
-      this.$router.push({
-        name: "address",
-        params: this.urlParams,
-        query: this.urlQuery
-      });
+      // this.$router.push({
+      //   name: "address",
+      //   params: this.urlParams,
+      //   query: this.urlQuery
+      // });
       this.$fetch("/Conditional/rangeQueryOuter", this.searchData).then(
         response => {
           if (response.status == 200) {
@@ -575,11 +575,12 @@ export default {
                 } else {
                   this.tableData[i].inOut = false;
                 }
+                 this.tableData[i].timestampUTC = this.$timestampToTime(this.tableData[i].timestamp)+ ' (UTC)';
                 this.tableData[i].timestamp = this.$time(this.time1 - newTime);
                 this.tableData[i].inOut =
-                  this.tableData[i].to == this.blockid ? false : true;
+                  this.tableData[i].to.toLowerCase() == this.blockid.toLowerCase() ? false : true;
                 this.tableData[i].status =
-                  this.tableData[i].to == this.blockid ? "IN" : "OUT";
+                  this.tableData[i].to.toLowerCase() == this.blockid.toLowerCase() ? "IN" : "OUT";
               }
             }
           }
@@ -630,11 +631,11 @@ export default {
       console.log(
         "合并后的结果5555:------------" + JSON.stringify(this.urlQuery)
       );
-      this.$router.push({
-        name: "address",
-        params: this.urlParams,
-        query: this.urlQuery
-      });
+      // this.$router.push({
+      //   name: "address",
+      //   params: this.urlParams,
+      //   query: this.urlQuery
+      // });
       this.$fetch("/Conditional/rangeQueryInner", this.searchData).then(
         response => {
           if (response.status == 200) {
@@ -643,8 +644,9 @@ export default {
               parseInt(response.data[1][0].total) / this.pageNum
             );
             for (let i = 0; i < this.tableData2.length; i++) {
+              this.tableData2[i].timestampUTC = this.$timestampToTime(this.tableData2[i].timestamp/1000)+ ' (UTC)';
               this.tableData2[i].inOut =
-                this.tableData2[i].to == this.blockid ? false : true;
+                this.tableData2[i].to.toLowerCase() == this.blockid.toLowerCase() ? false : true;
               let newTime = this.tableData2[i].timestamp;
               this.tableData2[i].timestamp = this.$time(
                 this.time1 - newTime / 1000
@@ -713,11 +715,11 @@ export default {
       console.log(
         "合并后的结果5555:------------" + JSON.stringify(this.urlQuery)
       );
-      this.$router.push({
-        name: "address",
-        params: this.urlParams,
-        query: this.urlQuery
-      });
+      // this.$router.push({
+      //   name: "address",
+      //   params: this.urlParams,
+      //   query: this.urlQuery
+      // });
       this.$fetch("/Conditional/rangeQueryERC20", this.searchData).then(
         response => {
           if (response.status == 200) {
@@ -731,19 +733,21 @@ export default {
             );
             for (let i = 0; i < this.tableData3.length; i++) {
               if ("timestamp" in this.tableData3[i]) {
+                this.tableData3[i].timestampUTC = this.$timestampToTime(this.tableData3[i].timestamp/1000)+ ' (UTC)';
                 let newTime = this.tableData3[i].timestamp;
                 this.tableData3[i].timestamp = this.$time(
                   this.time1 - newTime / 1000
                 );
               }
+              
               // if(this.realTokenName) this.tableData3[i].statusName = this.realTokenName;
               this.tableData3[i].hash = this.tableData3[i].blockHash;
               this.tableData3[i].token = "ERC-20";
               this.tableData3[i].value = this.tableData3[i].data;
               this.tableData3[i].inOut =
-                this.tableData3[i].to == this.blockid ? false : true;
+                this.tableData3[i].to.toLowerCase() == this.blockid.toLowerCase() ? false : true;
               this.tableData3[i].status =
-                this.tableData3[i].to == this.blockid ? "IN" : "OUT";
+                this.tableData3[i].to.toLowerCase() == this.blockid.toLowerCase() ? "IN" : "OUT";
             }
             console.log(this.tableData3);
           }
@@ -762,20 +766,6 @@ export default {
       let blockid = value.val;
       this.blockid = blockid;
       this.type = value.type;
-      if (this.$route.query.hide) {
-        this.$router.push({
-          name: "address",
-          params: { blockid: value.val },
-          query: {
-            type: value.type,
-            hide: true,
-            tokenAddress: this.$route.query.tokenAddress,
-            statusName: this.$route.query.statusName
-          }
-        });
-        return;
-      }
-      console.log(121212);
       if (value.type == "to" || value.type == "from") {
         this.queryTransactionByValue();
         this.queryMainCoin();
@@ -806,6 +796,19 @@ export default {
           name: "transactionsDetail",
           params: { blockid: blockid }
         });
+      }
+      if (this.$route.query.hide) {
+        this.$router.push({
+          name: "address",
+          params: { blockid: value.val },
+          query: {
+            type: value.type,
+            hide: true,
+            tokenAddress: this.$route.query.tokenAddress,
+            statusName: this.$route.query.statusName
+          }
+        });
+        return;
       }
     },
     // queryTransactionByValue
@@ -858,12 +861,14 @@ export default {
               } else {
                 this.tableData[i].inOut = false;
               }
+              
+              this.tableData[i].timestampUTC = this.$timestampToTime(newTime)+ ' (UTC)';
               this.tableData[i].timestamp = this.$time(this.time1 - newTime);
               // this.tableData[i].timestamp = this.$timestampToTime(newTime);
               this.tableData[i].inOut =
-                this.tableData[i].to == this.blockid ? false : true;
+                this.tableData[i].to.toLowerCase() == this.blockid.toLowerCase() ? false : true;
               this.tableData[i].status =
-                this.tableData[i].to == this.blockid ? "IN" : "OUT";
+                this.tableData[i].to.toLowerCase() == this.blockid.toLowerCase() ? "IN" : "OUT";
             }
           }
         }
@@ -885,9 +890,11 @@ export default {
             parseInt(response.data[1][0].total) / this.pageNum
           );
           for (let i = 0; i < this.tableData2.length; i++) {
+            
             this.tableData2[i].inOut =
-              this.tableData2[i].to == this.blockid ? false : true;
+              this.tableData2[i].to.toLowerCase() == this.blockid.toLowerCase() ? false : true;
             let newTime = this.tableData2[i].timestamp;
+            this.tableData2[i].timestampUTC = this.changeTimeInBlcok(newTime);
             this.tableData2[i].timestamp = this.$time(
               this.time1 - newTime / 1000
             );
@@ -936,7 +943,8 @@ export default {
           );
           for (let i = 0; i < this.tableData3.length; i++) {
             if ("timestamp" in this.tableData3[i]) {
-              let newTime = this.tableData3[i].timestamp;
+              let newTime = this.tableData3[i].timestamp;              
+              this.tableData3[i].timestampUTC = this.$timestampToTime(this.tableData3[i].timestamp/1000)+ ' (UTC)';
               // this.tableData3[i].timestamp = this.$timestampToTime(
               //   newTime / 1000
               // );
@@ -948,9 +956,14 @@ export default {
             this.tableData3[i].token = "ERC-20";
             this.tableData3[i].value = this.tableData3[i].data;
             this.tableData3[i].inOut =
-              this.tableData3[i].to == this.blockid ? false : true;
+              this.tableData3[i].to.toLowerCase() == this.blockid.toLowerCase() ? false : true;
             this.tableData3[i].status =
-              this.tableData3[i].to == this.blockid ? "IN" : "OUT";
+              this.tableData3[i].to.toLowerCase() == this.blockid.toLowerCase() ? "IN" : "OUT";
+              console.log(this.blockid)
+              // console.log(this.tableData3[i].to == this.blockid)
+              console.log('0000000--------'+ this.tableData3[i].to)
+              // console.log(this.tableData3[i].status)
+              // console.log(this.tableData3[i].inOut)
           }
         }
       });
@@ -1108,7 +1121,28 @@ export default {
           this.tokenName.push(name[element]);
         });
       });
-    }
+    },
+    changeTimeInBlcok(timestamp){
+      let date = new Date(timestamp);
+      let Y = date.getFullYear() + "-";
+      let M =
+          date.getMonth() + 1 < 10
+              ? "0" + (date.getMonth() + 1) + "-"
+              : date.getMonth() + 1 + "-";
+      let D =
+          date.getDate() < 10 ? "0" + date.getDate() + " " : date.getDate() + " ";
+      let h =
+          date.getHours() < 10
+              ? "0" + date.getHours() + ":"
+              : date.getHours() + ":";
+      let m =
+          date.getMinutes() < 10
+              ? "0" + date.getMinutes() + ":"
+              : date.getMinutes() + ":";
+      let s =
+          date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
+      return Y + M + D + h + m + s + ' (UTC)';
+    },
   }
 };
 </script>

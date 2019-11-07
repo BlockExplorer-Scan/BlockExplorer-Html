@@ -51,10 +51,11 @@
       </el-table-column>
       <el-table-column :label="tableTitle.Age" min-width="160" >
         <template slot-scope="scope" >
-          <el-popover trigger="hover" placement="top">
-            <p>{{scope.row.timestampUTC}}</p>
-            <div slot="reference" class="time-wrappe">
+          <!-- <el-popover trigger="hover" placement="top"> -->
+            <div v-if="showTime" @click="changeTime">{{scope.row.timestampUTC}}</div>
+            <!-- <div slot="reference" class="time-wrappe"> -->
               <!-- <el-tag size="medium">{{ scope.row.name }}</el-tag> -->
+            <div v-else @click="changeTime">
               <span v-if="scope.row.timestamp[0] > 0">
                 {{scope.row.timestamp[0]}} {{$t('message.days')}}
                 {{scope.row.timestamp[1]}} {{$t('message.hours')}}
@@ -67,7 +68,8 @@
               >{{scope.row.timestamp[2]}} {{$t('message.mins')}} </span>
               <span>{{scope.row.timestamp[3]}} {{$t('message.secsAgo')}}</span>
             </div>
-          </el-popover>
+            <!-- </div> -->
+          <!-- </el-popover> -->
         </template>
       </el-table-column>
       <el-table-column :label="tableTitle.From"  show-overflow-tooltip>
@@ -146,6 +148,7 @@ export default {
   components:{Search},
   data() {
     return {
+      showTime:false,
       inputPage:'',
       messageWord:'',
       pageCount:"",
@@ -277,6 +280,10 @@ export default {
     });
   },
   methods: {
+    // 改变块龄age显示
+    changeTime(){
+      this.showTime = !this.showTime
+    },
     // 获取搜索报错信息
     shwoErroer(msg){
       this.messageWord = msg

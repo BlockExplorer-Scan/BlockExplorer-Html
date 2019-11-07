@@ -44,7 +44,7 @@
 </template>
 <script>
 export default {
-  props: ["transactiondata", "newData","unit"],
+  props: ["transactiondata", "newData","unit","timeDifferent"],
   data() {
     return {};
   },
@@ -57,20 +57,22 @@ export default {
     let _this = this;
     // 定时器 不删
     setInterval(function() {
+      let realTime = Date.parse(new Date())/1000 + _this.timeDifferent
       for (let i = 0; i < _this.newTransactiondata.length; i++) {
-        if(_this.newTransactiondata[i].timestamp[3] < 0){
-          _this.$set(_this.newTransactiondata[i].timestamp, 3, 0);
-        }
-        if(_this.newTransactiondata[i].timestamp[2] > 59){
-          _this.$set(_this.newTransactiondata[i].timestamp, 2, 0);
-          _this.$set(_this.newTransactiondata[i].timestamp, 1, 1);
-        }
-        if (_this.newTransactiondata[i].timestamp[3] >= 59) {
-          _this.$set(_this.newTransactiondata[i].timestamp, 3, 0);
-          _this.$set(_this.newTransactiondata[i].timestamp, 2, _this.newTransactiondata[i].timestamp[2] + 1);
-        } else {
-          _this.$set(_this.newTransactiondata[i].timestamp, 3, _this.newTransactiondata[i].timestamp[3] + 1);
-        }
+         _this.newTransactiondata[i].timestamp = _this.$time(realTime - _this.newTransactiondata[i].mytime)
+        // if(_this.newTransactiondata[i].timestamp[3] < 0){
+        //   _this.$set(_this.newTransactiondata[i].timestamp, 3, 0);
+        // }
+        // if(_this.newTransactiondata[i].timestamp[2] > 59){
+        //   _this.$set(_this.newTransactiondata[i].timestamp, 2, 0);
+        //   _this.$set(_this.newTransactiondata[i].timestamp, 1, 1);
+        // }
+        // if (_this.newTransactiondata[i].timestamp[3] >= 59) {
+        //   _this.$set(_this.newTransactiondata[i].timestamp, 3, 0);
+        //   _this.$set(_this.newTransactiondata[i].timestamp, 2, _this.newTransactiondata[i].timestamp[2] + 1);
+        // } else {
+        //   _this.$set(_this.newTransactiondata[i].timestamp, 3, _this.newTransactiondata[i].timestamp[3] + 1);
+        // }
       }
     }, 1000);
   },
@@ -129,7 +131,7 @@ export default {
           //   transactiondata.pop();
           // }
         } else {
-          console.log("transactiondata already exist data");
+          // console.log("transactiondata already exist data");
         }
       }
     }

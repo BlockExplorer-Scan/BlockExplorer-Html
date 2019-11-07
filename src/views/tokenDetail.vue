@@ -247,9 +247,11 @@ export default {
       this.$fetch("/ERC20Tokens/queryERC20TokenTransfers", params).then(res => {
         this.tokens = res.data;
         this.tokens.forEach(item => {
+          item.timestampUTC = this.$timestampToTime(item.timestamp)+ ' (UTC)';
           if (item.timestamp) {
             item.timestamp = this.$time(this.time1 - item.timestamp);
           }
+          
           // item.data = parseInt(item.data, 16);
           item.data =
             parseInt(item.data, 16) / Math.pow(10, this.tokensCounts.decimals);

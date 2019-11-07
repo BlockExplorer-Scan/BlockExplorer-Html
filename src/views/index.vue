@@ -94,10 +94,10 @@
       <chart ref="simpleChart" />
     </div>
     <div class="section">
-      <blocks :blockdata="blockdata" :newData="newData" :unit="unit"/>
+      <blocks :blockdata="blockdata" :newData="newData" :unit="unit" :timeDifferent="timeDifferent"/>
     </div>
     <div class="section">
-      <transactions :transactiondata="transactiondata" :newData="newData" :unit="unit"/>
+      <transactions :transactiondata="transactiondata" :newData="newData" :unit="unit" :timeDifferent="timeDifferent"/>
     </div>
   </div>
 </template>
@@ -105,7 +105,7 @@
 import chart from "@/components/chart.vue";
 import blocks from "@/components/blocks.vue";
 import transactions from "@/components/transactions.vue";
-
+import MyWebsocket from "@/util/myWebsocket.js"
 export default {
   components: {
     chart,
@@ -129,37 +129,49 @@ export default {
       blockdata: [],
       transactiondata: [],
       newData: {},
-      // wsUrl: "ws://10.0.20.144:8080/web3j/v1.0/websocket", //测试服
+      // wsUrl: "ws://10.0.20.144:8080/web3j/v1.0/websocket", //本地
       wsUrl: "ws://wsxb.haizhutoken.com:80/web3j/v1.0/websocket", //测试服
       lockReconnect: false, //避免ws重复连接
       ws: null,
       time1: 0,
-      unit:''
+      unit:'',
+      timeDifferent:null,
+      erroeStatus:false,
+      realWs:''
     };
   },
   created() {
+    // let aa = new Websocket()
+    // aa.nihao()
+    // console.log(WebSocket)
+    // aa.longSock(`ws://wsxb.haizhutoken.com:80/web3j/v1.0/websocket`, this.letMe, '开始建立websocket')
+    // WebSocket.nihao()
     this.getData();
-     var EventUtil = {
-        addHandler: function (element, type, handler) {
-            if (element.addEventListener) {
-                element.addEventListener(type, handler, false);
-            } else if (element.attachEvent) {
-                element.attachEvent("on" + type, handler);
-            } else {
-                element["on" + type] = handler;
-            }
-        }
+    var EventUtil = {
+      addHandler: function (element, type, handler) {
+          if (element.addEventListener) {
+              element.addEventListener(type, handler, false);
+          } else if (element.attachEvent) {
+              element.attachEvent("on" + type, handler);
+          } else {
+              element["on" + type] = handler;
+          }
+      }
     };
     EventUtil.addHandler(window, "online",  () =>{
-         console.log("连上网了！");
-          this.getData();
+        console.log("连上网了！");
+        this.getData();
     });
     EventUtil.addHandler(window, "offline", () =>{ 
          console.log("网络不给力，请检查网络设置!");
     });
   },
   methods: {
+    letMe(evt,ws){
+      console.log(11)
+    },
     initWebSocket() {
+      console.log('正要开始建立websocket')
       let _this = this;
       try {
         if (_this.ws == null) {
@@ -181,26 +193,40 @@ export default {
     },
     initEventHandle() {
       let _this = this;
-      _this.ws.onclose = function() {
-        _this.reconnect(_this.wsUrl);
-        console.log("llws连接关闭!" + new Date().toUTCString());
-      };
-      _this.ws.onerror = function() {
-        _this.reconnect(_this.wsUrl);
-        // console.log("llws连接错误!");
-      };
+      let timeOut;
       _this.ws.onopen = function() {
+        _this.erroeStatus = false
+        _this.ws.send('我来拿数据了')
         heartCheck.reset().start(); //心跳检测重置
         console.log("llws连接成功!" + new Date().toUTCString());
       };
-      _this.ws.onmessage = function(event) {
+       _this.ws.onmessage = function(event) {
         //如果获取到消息，心跳检测重置
         heartCheck.reset().start(); //拿到任何消息都说明当前连接是正常的
         console.log("llws收到消息啦:" + event);
-        _this.getTime();
+        // _this.getTime();
         setTimeout(function() {
+          _this.time1 = Date.parse(new Date())/1000 + _this.timeDifferent
           _this.global_callback(event);
         }, 8000);
+      };
+      _this.ws.onclose = function() {
+        console.log("llws连接关闭!");
+        _this.reconnect(_this.wsUrl);
+        // _this.reconnect(_this.wsUrl);
+        // _this.erroeStatus = true
+        // if(_this.erroeStatus){
+          // timeOut = setInterval(function(){
+            // _this.reconnect(_this.wsUrl);
+            // _this.initWebSocket()
+          // },10000)
+        // }
+        console.log("llws连接关闭!" + new Date().toUTCString());
+      };
+      _this.ws.onerror = function() {
+        // clearInterval(timeOut)
+        _this.reconnect(_this.wsUrl);
+        console.log("llws连接错误!");
       };
       //心跳检测
       let heartCheck = {
@@ -218,6 +244,7 @@ export default {
             //这里发送一个心跳，后端收到后，返回一个心跳消息，
             //onmessage拿到返回的心跳就说明连接正常
             if (_this.ws.readyState == 0) {
+              console.log('send ;;;;;;;')
               _this.ws.send("ping");
             }
             // console.log("ping!");
@@ -230,29 +257,32 @@ export default {
       };
     },
     reconnect(url) {
+      console.log("2s后开始重连!");
       let _this = this;
-      if (_this.lockReconnect) return;
+      // if (_this.lockReconnect) return;
       _this.lockReconnect = true;
       setTimeout(function() {
+        console.log("开始重连!" + new Date().toUTCString());
         //没连接上会一直重连，设置延迟避免请求过多
         _this.initWebSocket(url);
         _this.lockReconnect = false;
       }, 2000);
     },
-    global_callback(e) {
+    global_callback(e,ws) {
       this.newData = JSON.parse(e.data);
-      
       // console.log(JSON.stringify(this.newData) );
-      this.newData.block.timestamp = this.$time(
-        this.time1 - this.newData.block.timestamp
-      );
+      let realTime = Date.parse(new Date())/1000 + this.timeDifferent
+      this.newData.block.mytime = this.newData.block.timestamp
+      this.newData.block.timetime = this.$timestampToTime(this.newData.block.timestamp ) 
+      // this.newData.block.timestamp = this.$time(this.time1 - this.newData.block.timestamp);
+      this.newData.block.timestamp = this.$time(realTime - this.newData.block.mytime)
       // this.newData.block.timestamp = this.$timestampToTime(this.newData.block.timestamp)
       for (let i = 0; i < this.newData.block.transactions.length; i++) {
-        this.newData.block.transactions[
-          i
-        ].timestamp = this.newData.block.timestamp;
+        this.newData.block.transactions[i].mytime = this.newData.block.mytime;
+        this.newData.block.transactions[i].timestamp = this.newData.block.timestamp;
       }
       this.blockNum = this.newData.block.number;
+      this.realWs = ws
     },
     jumpTo(val) {
       if (val == "tran") {
@@ -270,6 +300,8 @@ export default {
     async getTime() {
       let { data } = await this.$fetch("/date");
       this.time1 = data;
+      this.timeDifferent = this.time1 - Date.parse(new Date())/1000
+      console.log(this.timeDifferent)
     },
     async getData() {
       let param = {
@@ -296,6 +328,7 @@ export default {
           this.blockNum = response.data[0].number;
           for (let i = 0; i < this.blockdata.length; i++) {
             let newTime = this.blockdata[i].timestamp;
+            this.blockdata[i].mytime = this.blockdata[i].timestamp
             this.blockdata[i].timestamp = this.$time(this.time1 - newTime);
             // this.blockdata[i].timestamp = this.$timestampToTime(newTime)
           }
@@ -309,6 +342,7 @@ export default {
           for (let i = 0; i < this.transactiondata.length; i++) {
             let newTime = this.transactiondata[i].timestamp;
             this.transactiondata = response.data;
+            this.transactiondata[i].mytime = this.transactiondata[i].timestamp
             this.transactiondata[i].timestamp = this.$time(
               this.time1 - newTime
             );
@@ -317,12 +351,15 @@ export default {
           
         }
       });
-      this.initWebSocket();
+      let aWebsocket = new MyWebsocket()
+      aWebsocket.longSock(`ws://wsxb.haizhutoken.com:80/web3j/v1.0/websocket`, this.global_callback, '开始建立websocket')
+      // this.initWebSocket();
     }
   },
   destroyed() {
     console.log('进入销毁')
-    this.ws.close();
+    // this.ws.close();
+    this.realWs.close();
   }
 };
 </script>

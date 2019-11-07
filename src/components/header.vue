@@ -62,11 +62,11 @@
             <i class="fa fa-globe" style="font-size:20px"></i>
           </span>
           <el-dropdown-menu slot="dropdown" >
-            <el-dropdown-item :command="'cn'">
+            <el-dropdown-item :command="'en'">
               ENGLISH
               <i class="fa fa-check" v-if="this.$i18n.locale == 'en'"></i>
             </el-dropdown-item>
-            <el-dropdown-item :command="'en'">中文 <i class="fa fa-check" v-if="this.$i18n.locale == 'cn'"></i></el-dropdown-item>
+            <el-dropdown-item :command="'cn'">中文 <i class="fa fa-check" v-if="this.$i18n.locale == 'cn'"></i></el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
         </div>
