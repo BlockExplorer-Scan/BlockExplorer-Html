@@ -6,7 +6,8 @@
           <p>
             <el-checkbox checked style="margin-right:5px"></el-checkbox>
             <span style="margin-right:5px">{{$t('message.Summary')}}</span>
-            <span style="color:rgb(192, 192, 192)">[ERC-20]</span>
+            <span style="color:rgb(192, 192, 192)" v-if="!ifHidden">[ERC-20]</span>
+            <!-- <span style="color:rgb(192, 192, 192)">{{!this.$route.query.ifHidden ? '': '[ERC-20]'}}</span> -->
           </p>
         </div>
         <div class="overview-item">
@@ -150,6 +151,7 @@ export default {
       time1: 0,
       // address: '0xc1fe51a933d9bb15eeabadffd81918241121988c',
       address: this.$route.params.blockid,
+      ifHidden: '',
       startfrom: 0,
       pageCount: 0,
       Holders: "",
@@ -162,6 +164,7 @@ export default {
   },
   created() {
     // this.getTokens();
+    this.ifHidden = this.$route.query.ifHidden == 'true' ? true :false
     this.getHolders();
     this.$route.meta.title = this.$route.params.blockid;
     if (this.$i18n.locale == "cn") {
@@ -179,6 +182,10 @@ export default {
     }
   },
   mounted() {
+    this.ifHidden = this.$route.query.ifHidden == 'true' || this.$route.query.ifHidden == true ? true :false
+    // console.log(typeof this.$route.query.ifHidden)
+    // console.log(typeof this.ifHidden)
+    // console.log( this.ifHidden)
     Bus.$on("language", data => {
       if (data == "cn") {
         this.tabTitle = {
@@ -195,7 +202,6 @@ export default {
       }
     });
     Bus.$on("loginOut", data => {
-      // alert(12121)
       this.hasToken = "";
     });
     var EventUtil = {

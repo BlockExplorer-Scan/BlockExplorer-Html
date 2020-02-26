@@ -2,7 +2,7 @@
   <div id="app">
     
 <!-- <p>{{$t('message.hello')}}</p>  -->
-    <iHeader class="header-wrap"/>
+    <iHeader class="header-wrap" />
     <router-view class="page"></router-view>
   </div>
 </template>
@@ -12,6 +12,23 @@ import index from "@/views/index.vue";
 export default {
   components: {
     iHeader
+  },
+  data(){
+    return{
+      // ifHidden:''
+    }
+  },
+  created(){
+    //  this.ifHidden = this.$route.query.ifHidden == 'true' || this.$route.query.ifHidden == true ? true :false
+    // console.log(typeof this.$route.query.ifHidden)
+    // console.log( this.$route.query.ifHidden)
+    // console.log(typeof this.ifHidden)
+  },
+  mounted(){
+  //    this.ifHidden = this.$route.query.ifHidden == 'true' || this.$route.query.ifHidden == true ? true :false
+  // console.log(typeof this.$route.query.ifHidden)
+  // console.log( this.$route.query.ifHidden)
+    // console.log(typeof this.ifHidden)
   }
 };
 </script>

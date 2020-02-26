@@ -10,7 +10,7 @@
           <p>
             <el-checkbox checked style="margin-right:5px"></el-checkbox>
             <span style="margin-right:5px">{{$t('message.Summary')}}</span>
-            <span style="color:rgb(192, 192, 192)">[ERC-20]</span>
+            <span style="color:rgb(192, 192, 192)" v-if="this.$route.query.ifHidden">[ERC-20]</span>
           </p>
         </div>
         <div class="overview-item">
@@ -345,7 +345,7 @@ export default {
       tabTitle: {
         Transactions: "Transactions",
         InternalTxns: "Internal Txns",
-        Erc20TokenTxns: "ERC20 Token Txns",
+        Erc20TokenTxns: "Token Txns",
         MinedBlocks: "Mined Blocks",
         MinedUncles: "Mined Uncles",
         Comments: "Comments"
@@ -448,7 +448,7 @@ export default {
       this.tabTitle = {
         Transactions: "交易",
         InternalTxns: "内部交易",
-        Erc20TokenTxns: "ERC20代幣交易",
+        Erc20TokenTxns: "代幣交易",
         MinedBlocks: "已挖區塊",
         MinedUncles: "已挖叔區塊",
         Comments: "评论"
@@ -457,7 +457,7 @@ export default {
       this.tabTitle = {
         Transactions: "Transactions",
         InternalTxns: "Internal Txns",
-        Erc20TokenTxns: "ERC20 Token Txns",
+        Erc20TokenTxns: "Token Txns",
         MinedBlocks: "Mined Blocks",
         MinedUncles: "Mined Uncles",
         Comments: "Comments"
@@ -495,7 +495,7 @@ export default {
         this.tabTitle = {
           Transactions: "交易",
           InternalTxns: "内部交易",
-          Erc20TokenTxns: "ERC20代幣交易",
+          Erc20TokenTxns: "代幣交易",
           MinedBlocks: "已挖區塊",
           MinedUncles: "已挖叔區塊",
           Comments: "评论"
@@ -504,7 +504,7 @@ export default {
         this.tabTitle = {
           Transactions: "Transactions",
           InternalTxns: "Internal Txns",
-          Erc20TokenTxns: "ERC20 Token Txns",
+          Erc20TokenTxns: "Token Txns",
           MinedBlocks: "Mined Blocks",
           MinedUncles: "Mined Uncles",
           Comments: "Comments"

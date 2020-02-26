@@ -88,11 +88,13 @@ export default {
       pageNum: 20,
       pageCount: 0,
       arrData:[],
-      currentPage:1
+      currentPage:1,
+      erc20Data:[]
     };
   },
   created() {
     this.getTokens();
+    this.getErc20Config();
      var EventUtil = {
         addHandler: function (element, type, handler) {
             if (element.addEventListener) {
@@ -114,11 +116,20 @@ export default {
   },
   methods: {
     jump(val) {
+      
+      // for (let item of this.erc20Data){
+      //   if(item == val){
+      //     ifHidden = true
+      //   }  
+      // }
+      let ifHidden = this.erc20Data.includes(val)
       this.$router.push({
         name: "tokenDetail",
         params: {
-          blockid: val
-        }
+          blockid: val,
+          // ifHidden:ifHidden
+        },
+        query: {ifHidden:ifHidden}
       });
     },
     getTokens() {
@@ -159,6 +170,11 @@ export default {
     },
     indexMethod(index) {
       return index + 1;
+    },
+    async getErc20Config() {
+      let data = await this.$fetch("Socket/getConfig");
+      this.erc20Data = data.data.hideErc20Address.split(',')
+      console.log(this.erc20Data)
     }
   }
 };

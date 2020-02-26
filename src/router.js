@@ -99,8 +99,8 @@ export default new Router({
       name: 'token',
       component: () => import('./views/token.vue'),
       meta: {
-        title: 'ERC-20 TokenTracker',
-        CNtitle: 'ERC-20 令牌跟蹤器'
+        title: ' TokenTracker',
+        CNtitle: ' 令牌跟蹤器'
       },
       children: [
         {

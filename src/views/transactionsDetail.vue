@@ -52,7 +52,8 @@
                 v-for="item in internalTran" :key="item.transactionHash">
                   <img src="../assets/right.jpg" style="width:12px;height:12px">
                   <span class="inline-block" style="color: #77838f!important;font-size:12px">&nbsp;&nbsp; TRANSFER &nbsp;</span>
-                  <span class="inline-block" style="font-size:12px">{{(item.value/Math.pow(10, 18)).toFixed(0)}}  {{detailItem.maincoinName}} </span>
+                  <!-- <span class="inline-block" style="font-size:12px">{{(item.value/Math.pow(10, 18)).toFixed(8)}}  {{detailItem.maincoinName}} </span> -->
+                  <span class="inline-block" style="font-size:12px">{{item.value |valueScience}}  {{detailItem.maincoinName}} </span>
                   <span class="inline-block " style="color: #77838f!important;">&nbsp;{{$t('message.From')}} &nbsp;</span>
                   <span class="jump tran-form">{{item.from}}</span>
                   <span class="inline-block" style="color: #77838f!important;">&nbsp;{{$t('message.To')}}&nbsp;</span>
@@ -69,12 +70,13 @@
                 <div v-for="(item,index) in transferedArr" :key="index" style="margin-bottom:5px;display:flex;align-items:center;flex-wrap:wrap">
                   <i class="fa fa-caret-right"></i>
                   <span class="inline-block">&nbsp;{{$t('message.From')}}</span>
-                  <span class="jump tran-form" @click="jumpToAdderss(item.from,'from',true,item.tokenAddress,item.statusName)">&nbsp;{{item.from}}&nbsp;</span>
+                  <span class="jump tran-form" @click="jumpToAdderss(item.from,'from',true,item.tokenAddress,item.statusName,item.ifHidden)">&nbsp;{{item.from}}&nbsp;</span>
                   <span class="inline-block">&nbsp;{{$t('message.To')}}</span>
-                  <span class="jump tran-form" @click="jumpToAdderss(item.to,'to',true,item.tokenAddress,item.statusName)">&nbsp;{{item.to}}&nbsp;&nbsp;</span>
+                  <span class="jump tran-form" @click="jumpToAdderss(item.to,'to',true,item.tokenAddress,item.statusName,item.ifHidden)">&nbsp;{{item.to}}&nbsp;&nbsp;</span>
                   
-                  <span class="tran-form">for&nbsp;{{item.data}}</span>
-                  <span class="jump tran-form  tran-width auto-max">&nbsp;ERC-20&nbsp;({{item.statusName}})</span>
+                  <span class="tran-form">for&nbsp;{{item.data}}&nbsp;&nbsp;</span>
+                  <span class="jump tran-form  tran-width auto-max" v-if="item.ifHidden">({{item.statusName}})</span>
+                  <span class="jump tran-form  tran-width auto-max" v-else>ERC-20&nbsp;({{item.statusName}})</span>
                 </div>
               </div>
             </li>
@@ -199,7 +201,8 @@ export default {
       type: "Hex",
       time1: 0,
       noData: false,
-      internalTran: []
+      internalTran: [],
+      erc20Data:[]
     };
   },
   filters: {
@@ -211,6 +214,21 @@ export default {
     cost(num){
         let per = '('+(num*100).toString().slice(0,5) + '%)'
         return per == '(0%)' ? '(0.00%)' : per == '(100%)' ? '(100.00%)' : per
+    },
+    valueScience(value){
+      value = (value/Math.pow(10, 18)).toString()
+      if(value.includes('.')){
+        let index = value.indexOf('.')+1
+        let length = value.length
+        let otherLength = length - index
+        if(otherLength>8){
+          return parseFloat(value).toFixed(8)
+        }else{
+          return value
+        }
+      }else{
+        return value
+      }
     }
   },
   created() {
@@ -218,6 +236,7 @@ export default {
     this.queryTransactionByValue(blockid);
     this.queryERC20ByTransaction(blockid);
     this.getInternalTran(blockid)
+    this.getErc20Config()
     var EventUtil = {
       addHandler: function (element, type, handler) {
           if (element.addEventListener) {
@@ -318,6 +337,18 @@ export default {
               this.tranbool = true;
             }
           }
+          console.log(this.transferedArr.length);
+          for(let item of this.transferedArr){
+            for(let erc of this.erc20Data){
+              if (item.tokenAddress == erc){
+                item.ifHidden = true
+                console.log('hide')
+              }else{
+                // item.ifHidden = false
+                // console.log('nohide')
+              }
+            }
+          }
           console.log(this.transferedArr);
         }
       });
@@ -330,11 +361,12 @@ export default {
         query: { type: type }
       });
     },
-    jumpToAdderss(index, type, hide,tokenAddress,statusName) {
+    jumpToAdderss(index, type, hide,tokenAddress,statusName,ifHidden) {
+      ifHidden == undefined ? ifHidden = true : ifHidden = false
       this.$router.push({
         name: "address",
         params: { blockid: index },
-        query: { type: type , hide: hide ,tokenAddress:tokenAddress,statusName:statusName }
+        query: { type: type , hide: hide ,tokenAddress:tokenAddress,statusName:statusName ,ifHidden:ifHidden}
       });
     },
     handleCommand(command) {
@@ -360,6 +392,11 @@ export default {
     async getTime() {
       let timeRes = await this.$fetch("/date");
       this.time1 = timeRes.data;
+    },
+    async getErc20Config() {
+      let data = await this.$fetch("Socket/getConfig");
+      this.erc20Data = data.data.hideErc20Address.split(',')
+      console.log(this.erc20Data)
     }
   },
   watch: {

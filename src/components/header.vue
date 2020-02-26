@@ -216,14 +216,18 @@
             <span style="color:#999" v-if="!this.$route.query.hide">{{pageNumber}}</span>
             <i class="el-icon-search" style="font-size:20px;background-color:#777777;color:#ffffff;margin-left:5px" @click="showSearch" v-if='(this.pageName == "交易  " && this.pageNumber == "") || (this.pageName == "Transactions  "&& this.pageNumber == "") '></i>
           </div>
-          <el-breadcrumb separator="/" style="height:50px;line-height:50px;">
-            <el-breadcrumb-item v-for="item in crumbsList" :key="item.path" v-if="item.meta.title">
-              <!-- <router-link :to="item.redirect||item.path" v-if="lang == 'cn'">{{item.meta.title}}</router-link> -->
-              <router-link :to="item.redirect||item.path" v-if="$i18n.locale == 'en'">{{item.meta.title}}</router-link>
-              <router-link :to="item.redirect||item.path" v-else>{{item.meta.CNtitle}}</router-link>
-              <!-- <router-link :to="item.redirect||item.path" v-else>{{item.meta.CNtitle}}</router-link> -->
+          <el-breadcrumb separator="/" style="height:50px;line-height:50px;" >
+            <el-breadcrumb-item v-for="(item,index) in crumbsList" :key="item.path" v-if="item.meta.title">
+                <router-link :to="item.redirect||item.path" v-if="$i18n.locale == 'en'">{{index == 1 && !ifHidden ? $t('message.ERC20TokenTracker') : item.meta.title}}</router-link>
+                <router-link :to="item.redirect||item.path" v-else>{{index == 1 && !ifHidden ? $t('message.ERC20TokenTracker') : item.meta.CNtitle}}</router-link>
             </el-breadcrumb-item>
           </el-breadcrumb>
+          <!-- <el-breadcrumb separator="/" style="height:50px;line-height:50px;" >
+            <el-breadcrumb-item v-for="item in crumbsList" :key="item.path" v-if="item.meta.title">
+                <router-link :to="item.redirect||item.path" v-if="$i18n.locale == 'en'">{{item.meta.title }}</router-link>
+                <router-link :to="item.redirect||item.path" v-else>{{item.meta.CNtitle}}</router-link>
+            </el-breadcrumb-item>
+          </el-breadcrumb> -->
         </div>
       </div>
 
@@ -264,10 +268,12 @@ export default {
       routerName:'',
       imgSrc:require("../assets/logo.png"),
       searchStatus:false,
-      ifContract:false
+      ifContract:false,
+      fHidden:''
     };
   },
   created() {
+    // this.selfIfHidden = this.ifHidden
     if (this.screenWidth <= 992) {
       this.isPc = false;
       this.navType = false;
@@ -275,6 +281,7 @@ export default {
     }
   },
   mounted() {
+    // this.ifHidden = this.$route.query.ifHidden == 'true' ? true :false
     // console.log('888888'+sessionStorage.getItem('token'))
     // console.log('999'+this.hasToken)
     // alert(sessionStorage.getItem("nowLanguage"))
@@ -476,7 +483,8 @@ export default {
   watch: {
     // 监听路由跳转
     $route(to, from) {
-      // console.log(this.$route.query)
+      console.log(this.$route.query)
+      this.ifHidden = this.$route.query.ifHidden == 'true' || this.$route.query.ifHidden == true ? true :false
       if(this.$route.query.language){
         this.$i18n.locale = this.$route.query.language
       }
