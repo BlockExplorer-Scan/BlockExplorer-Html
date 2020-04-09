@@ -38,6 +38,7 @@
             <p> {{$t('message.BlockReward')}} {{item.gasUsed | fixedFive}} {{unit}}</p>
           </div>
         </li>
+        
       </transition-group>
     </div>
   </div>
