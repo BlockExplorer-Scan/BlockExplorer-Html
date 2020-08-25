@@ -10,7 +10,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "element-ui": "^2.4.11",
-    "highcharts": "^6.2.0",
+    "highcharts": "^7.2.2",
     "js-big-decimal": "^1.2.1",
     "js-md5": "^0.7.3",
     "qs": "^6.6.0",
